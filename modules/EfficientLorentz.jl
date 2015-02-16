@@ -143,16 +143,47 @@ dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + b^2)
 function collisions2(x, y, vx, vy, r, maxsteps)
 	steps = 1
 	places = Vector[]
-	#posx = 0; posy = 0
+	push!(places, [-Inf, -Inf])
+	
 	while steps <= maxsteps
 	
 		# Will the particle exit the square?
 		n = ifloor(x)
 		m = ifloor(y)
 		k = vy/vx
-		b = k*x + y
+		b = - k*x + y
 		
-		if dist_point_line(n, m, k, b) >= r && dist_point_line(n, m+1, k, b) >= r && dist_point_line(n+1, m, k, b) >= r && dist_point_line(n+1, m+1, k, b) >= r	# If exits
+		# If exits, not counting the obstacle that has just experienced collision (of course distance to it < r)
+		# Make an array of corners and mark the corner where the collision just happened (which is the last item in "places" array)
+		array_corners = Array{Int, 1}[]
+		push!(array_corners, [n, m], [n, m+1], [n+1, m], [n+1, m+1])
+		#places[length(places)]
+		j = 0
+		for i = 1:length(array_corners)
+			if array_corners[i] == places[length(places)]
+				j = i
+			end
+		end
+		
+		condition1 = dist_point_line(array_corners[1][1], array_corners[1][2], k, b) >= r
+		condition2 = dist_point_line(array_corners[2][1], array_corners[2][2], k, b) >= r
+		condition3 = dist_point_line(array_corners[3][1], array_corners[3][2], k, b) >= r
+		condition4 = dist_point_line(array_corners[4][1], array_corners[4][2], k, b) >= r
+		
+		statement1 = condition1 && condition2 && condition3
+		
+		statement2 = condition1 && condition2 && condition3 && condition4
+		
+		statement = false
+		if j != 0
+			deleteat!(array_corners, j)
+			statement = statement1
+		else statement = statement2
+		end
+		
+
+		
+		if statement
 	   
 	   		# determine through which wall it will exit
 	   		# times to each wall (vertical, horizontal)
@@ -219,18 +250,18 @@ function collisions2(x, y, vx, vy, r, maxsteps)
 		   	end
 		   	
 		# Now what if the particle doesn't exit the square? Obtain where it doesn't (coords of obstacle), collide there and continue cycle   	
-		elseif dist_point_line(n, m, k, b) < r
-			@show push!(places, [n, m])
-			@show x, y, vx, vy = collide(n, m, x, y, vx, vy, r)
-		elseif dist_point_line(n, m+1, k, b) < r
-			@show push!(places, [n, m+1])		
-			@show x, y, vx, vy = collide(n, m+1, x, y, vx, vy, r)
-		elseif dist_point_line(n+1, m, k, b) < r
-			@show push!(places, [n+1, m])
-			@show x, y, vx, vy = collide(n+1, m, x, y, vx, vy, r)
-		elseif dist_point_line(n+1, m+1, k, b) < r
-			@show push!(places, [n+1, m+1])		
-			@show x, y, vx, vy = collide(n+1, m+1, x, y, vx, vy, r)
+		elseif !condition1
+			@show push!(places, array_corners[1])
+			@show x, y, vx, vy = collide(array_corners[1][1], array_corners[1][2], x, y, vx, vy, r)
+		elseif !condition2
+			@show push!(places, array_corners[2])		
+			@show x, y, vx, vy = collide(array_corners[2][1], array_corners[2][2], x, y, vx, vy, r)
+		elseif !condition3
+			@show push!(places, array_corners[3])
+			@show x, y, vx, vy = collide(array_corners[3][1], array_corners[3][2], x, y, vx, vy, r)
+		elseif !condition4
+			@show push!(places, array_corners[4])		
+			@show x, y, vx, vy = collide(array_corners[4][1], array_corners[4][2], x, y, vx, vy, r)
 		end
 	end
 end
