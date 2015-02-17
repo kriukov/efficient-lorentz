@@ -1,5 +1,5 @@
 module EfficientLorentz
-export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, collisions, collisions2
+export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, dist_point_line_sign, collisions, collisions2
 
 function frac(alpha, epsilon)
     p = 0; q = 0
@@ -63,60 +63,138 @@ function first_collision(x, y, vx, vy, delta)
 		
 	m = vy/vx
 	b = y - m*x
-
-	#= Code for m < 1 and m > 1 - unnecessary
-	if x != 0	
-		if m < 1
-				b1 = m + b # m*1 + b
-			if b1 < delta
-				return (1, 0)
-			elseif 1 - b1 < delta
-				return (1, 1)
-			else
-				b = b1
-				x = 1
-				y = b1
-			end
-		elseif m > 1
-				mp = 1/m
-				bpp = 1 - b/m
-				b1 = mp + bpp
-				if b1 < delta
-					return (0, 1)
-				elseif 1 - b1 < delta
-					return (1, 1)
-				else
-					b = m*(1 - bpp)
-					x = b1 - 1
-					y = 1
-				end	
+	
+	if b > delta && 1 - b > delta
+	
+		if vx > 0 && vy > 0
+			(q, p) = efficient_algorithm(m, b, delta)
+			p = ifloor(m*q) + 1
+		elseif vx < 0 && vy > 0
+			m = -m
+			(q, p) = efficient_algorithm(m, b, delta)
+			p = ifloor(m*q) + 1
+			m = -m
+			q = -q
+		elseif vx < 0 && vy < 0
+			b = 1 - b
+			(q, p) = efficient_algorithm(m, b, delta)
+			b = 1 - b
+			p = -ifloor(m*q) #p = -(ifloor(m*q) + 1)
+			q = -q
+		elseif vx > 0 && vy < 0
+			b = 1 - b
+			m = -m
+			(q, p) = efficient_algorithm(m, b, delta)
+			b = 1 - b
+			#m = -m # this line should not be here
+			p = -ifloor(m*q) #p = -(ifloor(m*q) + 1)
 		end
-	end
-	=#
-
-	if vx > 0 && vy > 0
-		(q, p) = efficient_algorithm(m, b, delta)
-		p = ifloor(m*q) + 1
-	elseif vx < 0 && vy > 0
+		
+	# Added code for cases when b or 1-b < delta
+	# The problem with efficient_algorithm() is that whenever b<delta or 1-b<delta, it always outputs (0, 1) - see plot b_or_1-b_lt_delta.png: even though the speed is negative in both directions (starting point is (0, b)) and the first collision is (-2, -2), the algorithm outputs (0, 1), which is in the other direction.
+	# We have to make special cases to fix it
+	
+	elseif b <= delta
+		# Four situations possible: leaves through top, leaves through right/left, hits (1, 1)/(-1, 1), hits (0, 1)
+		r = abs(delta*vx)
+		# Three critical values of m, ascending
+		m1 = (b - 1 + r*sqrt(2 + b*(b - 2) - r^2))/(r^2 - 1)
+		m2 = (r - (b - 1)*sqrt(2 + b*(b - 2) - r^2))/((b - 1)*r + sqrt(2 + b*(b - 2) - r^2))
+		m3 = sqrt(((b - 1)/r)^2 - 1)
+		
+		# Leaves through top
+		if abs(m) < m3 && abs(m) > m2
+			if vx > 0 && vy > 0
+				(q, p) = efficient_algorithm(1/m, (1-b)/m, delta/m)
+				q, p = p, q
+				p += 1
+			elseif vx < 0 && vy > 0
+				m = -m
+				(q, p) = efficient_algorithm(1/m, (1-b)/m, delta/m)
+				q, p = p, q
+				p += 1
+				q = -q
+			elseif vy < 0
+				q = 0
+				p = 0
+			end
+		elseif abs(m) > m3
+			q = 0
+			p = 1
+		elseif m < m2 && m > m1
+			q, p = 1, 1
+		elseif m > -m2 && m < -m1
+			q, p = -1, 1
+		elseif abs(m) < m1
+			if vx > 0 && vy > 0
+				(q, p) = efficient_algorithm(m, m + b, delta)
+				q += 1
+			elseif vx < 0 && vy > 0
+				m = -m
+				(q, p) = efficient_algorithm(m, m + b, delta)
+				q += 1
+				q = -q
+			elseif vy < 0
+				q = 0
+				p = 0
+			end		
+		end
+		
+	elseif 1 - b <= delta
+		
+		# It is just transformation y -> 1 - y, vy -> -vy and the previous situation applies
+		
 		m = -m
-		(q, p) = efficient_algorithm(m, b, delta)
-		p = ifloor(m*q) + 1
-		m = -m
-		q = -q
-	elseif vx < 0 && vy < 0
 		b = 1 - b
-		(q, p) = efficient_algorithm(m, b, delta)
-		b = 1 - b
-		p = -ifloor(m*q) #p = -(ifloor(m*q) + 1)
-		q = -q
-	elseif vx > 0 && vy < 0
-		b = 1 - b
-		m = -m
-		(q, p) = efficient_algorithm(m, b, delta)
-		b = 1 - b
-		#m = -m # this line should not be here
-		p = -ifloor(m*q) #p = -(ifloor(m*q) + 1)
-	end
+		vy = -vy
+		
+		r = abs(delta*vx)
+		# Three critical values of m, ascending
+		m1 = (b - 1 + r*sqrt(2 + b*(b - 2) - r^2))/(r^2 - 1)
+		m2 = (r - (b - 1)*sqrt(2 + b*(b - 2) - r^2))/((b - 1)*r + sqrt(2 + b*(b - 2) - r^2))
+		m3 = sqrt(((b - 1)/r)^2 - 1)
+		
+		# Leaves through top
+		if abs(m) < m3 && abs(m) > m2
+			if vx > 0 && vy > 0
+				(q, p) = efficient_algorithm(1/m, (1-b)/m, delta/m)
+				q, p = p, q
+				p += 1
+			elseif vx < 0 && vy > 0
+				m = -m
+				(q, p) = efficient_algorithm(1/m, (1-b)/m, delta/m)
+				q, p = p, q
+				p += 1
+				q = -q
+			elseif vy < 0
+				q = 0
+				p = 0
+			end
+		elseif abs(m) > m3
+			q = 0
+			p = 1
+		elseif m < m2 && m > m1
+			q, p = 1, 1
+		elseif m > -m2 && m < -m1
+			q, p = -1, 1
+		elseif abs(m) < m1
+			if vx > 0 && vy > 0
+				(q, p) = efficient_algorithm(m, m + b, delta)
+				q += 1
+			elseif vx < 0 && vy > 0
+				m = -m
+				(q, p) = efficient_algorithm(m, m + b, delta)
+				q += 1
+				q = -q
+			elseif vy < 0
+				q = 0
+				p = 0
+			end		
+		end		
+		
+		p = 1 - p
+		
+	end	
 	return q, p
 end
 
@@ -138,11 +216,12 @@ end
 
 # Distance from point (x, y) to line y = kx + b
 dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + b^2)
-
+dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + b^2)
 
 function collisions2(x, y, vx, vy, r, maxsteps)
 	steps = 1
 	places = Vector[]
+	# Push a dummy vector to "places" - it cannot be empty for array_corners
 	push!(places, [-Inf, -Inf])
 	
 	while steps <= maxsteps
@@ -157,7 +236,9 @@ function collisions2(x, y, vx, vy, r, maxsteps)
 		# Make an array of corners and mark the corner where the collision just happened (which is the last item in "places" array)
 		array_corners = Array{Int, 1}[]
 		push!(array_corners, [n, m], [n, m+1], [n+1, m], [n+1, m+1])
-		#places[length(places)]
+		
+		d(i) = dist_point_line(array_corners[i][1], array_corners[i][2], k, b)
+		
 		j = 0
 		for i = 1:length(array_corners)
 			if array_corners[i] == places[length(places)]
@@ -165,25 +246,19 @@ function collisions2(x, y, vx, vy, r, maxsteps)
 			end
 		end
 		
-		condition1 = dist_point_line(array_corners[1][1], array_corners[1][2], k, b) >= r
-		condition2 = dist_point_line(array_corners[2][1], array_corners[2][2], k, b) >= r
-		condition3 = dist_point_line(array_corners[3][1], array_corners[3][2], k, b) >= r
-		condition4 = dist_point_line(array_corners[4][1], array_corners[4][2], k, b) >= r
-		
-		statement1 = condition1 && condition2 && condition3
-		
-		statement2 = condition1 && condition2 && condition3 && condition4
-		
-		statement = false
-		if j != 0
-			deleteat!(array_corners, j)
-			statement = statement1
-		else statement = statement2
+		# Array of the rest of the corners (3 other which may or may not experience collision)
+		# The first two  numbers are the corner coords, and the third is true/false (1/0) whether it leaves square
+		array_rest_corners = Array{Int, 1}[]
+		for i = 1:4
+			if i != j
+				push!(array_rest_corners, [array_corners[i], d(i) >= r])
+			end
 		end
 		
+		leaves_square = array_rest_corners[1][3] == 1 && array_rest_corners[2][3] == 1 && array_rest_corners[3][3] == 1
 
-		
-		if statement
+		# If the particle exits the unit square without another collision
+		if leaves_square
 	   
 	   		# determine through which wall it will exit
 	   		# times to each wall (vertical, horizontal)
@@ -250,20 +325,23 @@ function collisions2(x, y, vx, vy, r, maxsteps)
 		   	end
 		   	
 		# Now what if the particle doesn't exit the square? Obtain where it doesn't (coords of obstacle), collide there and continue cycle   	
-		elseif !condition1
-			@show push!(places, array_corners[1])
-			@show x, y, vx, vy = collide(array_corners[1][1], array_corners[1][2], x, y, vx, vy, r)
-		elseif !condition2
-			@show push!(places, array_corners[2])		
-			@show x, y, vx, vy = collide(array_corners[2][1], array_corners[2][2], x, y, vx, vy, r)
-		elseif !condition3
-			@show push!(places, array_corners[3])
-			@show x, y, vx, vy = collide(array_corners[3][1], array_corners[3][2], x, y, vx, vy, r)
-		elseif !condition4
-			@show push!(places, array_corners[4])		
-			@show x, y, vx, vy = collide(array_corners[4][1], array_corners[4][2], x, y, vx, vy, r)
+		elseif array_rest_corners[1][3] == 0
+			place = [array_rest_corners[1][1], array_rest_corners[1][2]]
+			@show push!(places, place)
+			@show x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+		elseif array_rest_corners[2][3] == 0
+			place = [array_rest_corners[2][1], array_rest_corners[2][2]]
+			@show push!(places, place)		
+			@show x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+		elseif array_rest_corners[3][3] == 0
+			place = [array_rest_corners[3][1], array_rest_corners[3][2]]
+			@show push!(places, place)
+			@show x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
 		end
+		steps += 1
 	end
+	deleteat!(places, 1)
+	return places
 end
 
 
