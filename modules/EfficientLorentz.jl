@@ -218,12 +218,17 @@ end
 dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + 1)
 dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
-#-> Find the trajectory
+#-> Finds the trajectory
 function collisions(x, y, vx, vy, r, maxsteps)
 	steps = 1
 	places = Vector[]
+	coords = Vector[]
+	speeds = Vector[]
 	# Push a dummy place to "places" - it cannot be empty for array_corners
 	push!(places, [-Inf, -Inf])
+	
+	push!(coords, [x, y])
+	push!(speeds, [vx, vy])
 	
 	while steps <= maxsteps
 	
@@ -298,8 +303,11 @@ function collisions(x, y, vx, vy, r, maxsteps)
 				end
 				
 				q, p = first_collision(x1, y1, vx, vy, abs(r/vx))
-				@show push!(places, [q + posx, p + posy])
-				@show x, y, vx, vy = collide(q + posx, p + posy, x1 + posx, y1 + posy, vx, vy, r) # And we obtain coords of collision and new velocity, and then cycle continues
+				push!(places, [q + posx, p + posy])
+				x, y, vx, vy = collide(q + posx, p + posy, x1 + posx, y1 + posy, vx, vy, r)
+				push!(coords, [x, y])
+				push!(speeds, [vx, vy])
+				# And we obtain coords of collision and new velocity, and then cycle continues
 				
 		   	elseif number == 3 || number == 4
 		   		# Here we have to rotate
@@ -319,31 +327,39 @@ function collisions(x, y, vx, vy, r, maxsteps)
 				# Now the coords are rotated. In this rotated system, find the coords of the next obstacle
 				q, p = first_collision(x1, y1, vy, vx, abs(r/vy))
 				# Record the coords rotated back
-				@show push!(places, [p + posy, q + posx])
+				push!(places, [p + posy, q + posx])
 				# Find the next point of collision
-				@show x, y, vx, vy = collide(p + posy, q + posx, y1 + posy, x1 + posx, vx, vy, r)
+				x, y, vx, vy = collide(p + posy, q + posx, y1 + posy, x1 + posx, vx, vy, r)
+				push!(coords, [x, y])
+				push!(speeds, [vx, vy])
 		   	
 		   	end
 		   	
 		# Now what if the particle doesn't exit the square? Obtain where it doesn't (coords of obstacle), collide there and continue cycle   	
 		elseif array_rest_corners[1][3] == 0
 			place = [array_rest_corners[1][1], array_rest_corners[1][2]]
-			@show push!(places, place)
-			@show x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+			push!(places, place)
+			x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+			push!(coords, [x, y])
+			push!(speeds, [vx, vy])
 		elseif array_rest_corners[2][3] == 0
 			place = [array_rest_corners[2][1], array_rest_corners[2][2]]
-			@show push!(places, place)		
-			@show x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+			push!(places, place)		
+			x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+			push!(coords, [x, y])
+			push!(speeds, [vx, vy])
 		elseif array_rest_corners[3][3] == 0
 			place = [array_rest_corners[3][1], array_rest_corners[3][2]]
-			@show push!(places, place)
-			@show x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+			push!(places, place)
+			x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
+			push!(coords, [x, y])
+			push!(speeds, [vx, vy])
 		end
 		steps += 1
 	end
 	# Delete the dummy place at position 1
 	deleteat!(places, 1)
-	return places
+	return places, coords, speeds
 end
 
 
