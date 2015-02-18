@@ -219,13 +219,15 @@ dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + 1)
 dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
 #-> Finds the trajectory
-function collisions(x, y, vx, vy, r, maxsteps)
+function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
+	set_bigfloat_precision(precision)
+	x = big(x); y = big(y); vx = big(vx); vy = big(vy)
 	steps = 1
-	places = Vector[]
-	coords = Vector[]
-	speeds = Vector[]
+	places = Vector{BigInt}[]
+	coords = Vector{BigFloat}[]
+	speeds = Vector{BigFloat}[]
 	# Push a dummy place to "places" - it cannot be empty for array_corners
-	push!(places, [-Inf, -Inf])
+	push!(places, [0, 0])
 	
 	push!(coords, [x, y])
 	push!(speeds, [vx, vy])
@@ -273,7 +275,7 @@ function collisions(x, y, vx, vy, r, maxsteps)
 			th1 = (m - y)/vy 
 			th2 = (m - y + 1)/vy
 
-			array_times = Real[]
+			array_times = BigFloat[]
 			push!(array_times, tv1, tv2, th1, th2)
 
 			# Extract the minimum positive time value
