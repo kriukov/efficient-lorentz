@@ -1,5 +1,5 @@
 module EfficientLorentz
-export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, dist_point_line_sign, collisions, collisions2
+export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, dist_point_line_sign, collisions
 
 function frac(alpha, epsilon)
     p = 0; q = 0
@@ -215,13 +215,14 @@ function collide(q, p, x, y, vx, vy, r)
 end
 
 # Distance from point (x, y) to line y = kx + b
-dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + b^2)
-dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + b^2)
+dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + 1)
+dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
-function collisions2(x, y, vx, vy, r, maxsteps)
+#-> Find the trajectory
+function collisions(x, y, vx, vy, r, maxsteps)
 	steps = 1
 	places = Vector[]
-	# Push a dummy vector to "places" - it cannot be empty for array_corners
+	# Push a dummy place to "places" - it cannot be empty for array_corners
 	push!(places, [-Inf, -Inf])
 	
 	while steps <= maxsteps
@@ -259,7 +260,7 @@ function collisions2(x, y, vx, vy, r, maxsteps)
 
 		# If the particle exits the unit square without another collision
 		if leaves_square
-	   
+		
 	   		# determine through which wall it will exit
 	   		# times to each wall (vertical, horizontal)
 	   		tv1 = (n - x)/vx 
@@ -340,6 +341,7 @@ function collisions2(x, y, vx, vy, r, maxsteps)
 		end
 		steps += 1
 	end
+	# Delete the dummy place at position 1
 	deleteat!(places, 1)
 	return places
 end
@@ -347,7 +349,7 @@ end
 
 
 
-
+#### Functions below this line are deprecated
 
 
 
@@ -448,7 +450,7 @@ function post_collision(x, y, vx, vy, r)
 end
 
 #-> Calculates the coordinates of the obstacles for a given number of collisions (trajectory)
-function collisions(x, y, vx, vy, r, maxsteps)
+function collisions_deprecated(x, y, vx, vy, r, maxsteps)
 	steps = 1
 	places = Vector[]
 	q, p = first_collision(x, y, vx, vy, abs(r/vx))

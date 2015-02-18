@@ -56,3 +56,12 @@ first_collision(x1, y1-0.03, vx, vy, abs(r/vx)) gives the correct answer
 
 The problem is caused by the fact that in this case, 1 - b < delta (the same case will be if b < delta). It will hit the ball next to it in one direction and will not in the other.
 
+fixed
+
+=====================================================
+
+problem in EfficientLorentz: after ~10 steps, there is an error for collide() again
+
+x, y, vx, vy = -25.9220385027411,24.062625912729082,0.967026401228994,-0.2546761459699459
+
+
