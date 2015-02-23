@@ -1,5 +1,5 @@
 module EfficientLorentz
-export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, dist_point_line_sign, collisions
+export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, dist_point_line_sign, collisions, collisions3d
 
 function frac(alpha, epsilon)
     p = 0; q = 0
@@ -220,13 +220,20 @@ dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
 #-> Finds the trajectory
 function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
+	# Normalize velocity if it wasn't normalized
+	v = sqrt(vx^2 + vy^2)
+	vx1 = vx/v
+	vy1 = vy/v
+	vx = vx1
+	vy = vy1
+	
 	set_bigfloat_precision(precision)
 	x = big(x); y = big(y); vx = big(vx); vy = big(vy)
 	steps = 1
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
-	# Push a dummy place to "places" - it cannot be empty for array_corners
+	# Push a dummy place to "places" - it cannot be empty for array_corners; also, it can't be near [x, y] and it can't be NaN or Inf
 	push!(places, [-10^9, -10^9])
 	
 	push!(coords, [x, y])
@@ -306,6 +313,7 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 				
 				q, p = first_collision(x1, y1, vx, vy, abs(r/vx))
 				push!(places, [q + posx, p + posy])
+	
 				x, y, vx, vy = collide(q + posx, p + posy, x1 + posx, y1 + posy, vx, vy, r)
 				push!(coords, [x, y])
 				push!(speeds, [vx, vy])
@@ -365,8 +373,121 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 end
 
 
+## 3D version
 
 
+
+# to calculate the place where a particle will collide, if the obstacle have center x2, and radius r, and the particle have velocity v and initial position x1
+function collide3d(x1, x2, v, r)
+    b = BigFloat(dot((x1 - x2), v))/norm(v)^2
+    c = BigFloat(norm(x1 - x2)^2 - r^2)
+    if BigFloat(b^2 - c) < BigFloat(0)   # if there is no collision, return false
+    return false
+    end
+    t = -b - sqrt(BigFloat(b^2 - c))
+    x = v*t + x1
+    return x
+end
+
+# And, to calculate the velocity after the collision at the point x1
+function v_new(x1, x2, v)
+	n = x1 - x2
+	n = n/norm(n)
+	vn = dot(n, v)*n
+	v = v - 2vn
+	v = v/norm(v)
+	return v
+end
+
+# The time (with speed = 1 it is just the distance) in all 3 planes
+
+#t2 = sqrt((x[2] - q2)^2 + (x[3] - p2)^2)
+#t3 = sqrt((x[1] - q3)^2 + (x[3] - p3)^2)
+
+#s = max(t1, t2, t3)
+
+#x = x + v*s
+
+function collisions3d(x, v, r, maxsteps)
+
+	places = Vector{BigInt}[]
+	coords = Vector{BigFloat}[]
+	speeds = Vector{BigFloat}[]
+
+	steps = 1
+	
+	while steps <= maxsteps
+
+		# Projection functions that convert 3D vectors into 2D without dot and cross
+		Pxy(x) = [x[1], x[2]]
+		Pyz(x) = [x[2], x[3]]
+		Pxz(x) = [x[1], x[3]]
+
+		# Calculating first collision in all 3 planes
+		# Normalize velocities first
+		v_xy = [Pxy(v)[1], Pxy(v)[2]]
+		v_yz = [Pyz(v)[1], Pyz(v)[2]]
+		v_xz = [Pxz(v)[1], Pxz(v)[2]]
+	
+		v_xy = v_xy/norm(v_xy)
+		v_yz = v_yz/norm(v_yz)
+		v_xz = v_xz/norm(v_xz)
+		
+		# First collision in 2D (function first_collision() only works for a special set of initial conditions, that's why collisions() has so much code generalizing it)
+		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
+
+		@show q1, p1 = first(Pxy(x), v_xy, r) #x, y
+		@show q2, p2 = first(Pyz(x), v_yz, r) #y, z
+		@show q3, p3 = first(Pxz(x), v_xz, r) #x, z
+	
+		# Condition that all of them correspond to the same point (x, y, z) of collision
+		hit = q1 == q3 && p1 == q2 && p2 == p3
+		
+		x_new = collide3d(x, [q1, p1, p2], v, r)
+	
+		# If the collision happens
+		if @show hit && x_new != false
+			@show v = v_new(x_new, x, v)
+			@show x = x_new
+			@show push!(places, [q1, p1, p2])
+			@show push!(coords, x)
+			@show push!(speeds, v)
+		# If it doesn't happen
+		elseif @show hit && x_new == false || !hit && x_new == false
+			@show q1, x[1], v[1]
+			@show t1 = (q1 - x[1])/v[1]
+			@show t2 = (p1 - x[2])/v[2]
+			@show t3 = (p2 - x[3])/v[3]
+			t = max(t1, t2, t3)
+			@show x += v*t
+			
+		end
+	
+	@show steps += 1
+	end
+	return places, coords, speeds
+end
 
 # End of module
 end
+
+#= Testing: using EfficientLorentz; x = [0.2, 0.3, 0.2]; v = [cos(1), sin(1), sin(0.4)]; r = 0.1
+collisions3d(x, v, r, 5)
+
+Line that will cross [3, 4, 5] with r = 0.1:
+using EfficientLorentz; x = [0, 0.445, 0.342]; v = [0.451207, 0.541449, 0.709398]; r = 0.1
+
+
+
+x = [-2.125652728087777,-2.1057861003273635,-3.0]
+v = [-0.4512069325775071,-0.5414489190929208,-0.7093978939968069]
+
+
+
+=#
+
+
+
+
+
+
