@@ -261,8 +261,9 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 			end
 		end
 		
-		# Array of the rest of the corners (3 other which may or may not experience collision)
-		# The first two  numbers are the corner coords, and the third is true/false (1/0) whether it leaves square
+		
+		# Array of the rest of the corners (3 other which may or may not experience collision); does not work at 1st step
+		# The first two numbers are the corner coords, and the third is true/false (1/0) whether it leaves square
 		array_rest_corners = Array{Int, 1}[]
 		for i = 1:4
 			if i != j
@@ -270,7 +271,85 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 			end
 		end
 		
+		# 1st step: delete the obstacle that is the closest backwards
+		# Determine through which wall it would exit if moved backwards
+   		# Times to each wall (vertical, horizontal)
+   		if steps == 1	
+	   		
+	   		tv1 = (n - x)/vx 
+			tv2 = (n - x + 1)/vx
+			th1 = (m - y)/vy 
+			th2 = (m - y + 1)/vy
+
+			array_times_back = BigFloat[]
+			push!(array_times_back, tv1, tv2, th1, th2)
+
+			# Extract the maximum negative time value (closest wall backwards)
+			maxneg = -Inf
+			number = 0
+			for i = 1:length(array_times_back)
+				if array_times_back[i] > maxneg && array_times_back[i] < 0
+					maxneg = array_times_back[i]
+					number = i
+				end				
+			end
+			# number: 1 = left, 2 = right, 3 = bottom, 4 = top
+			if number == 1
+				if k*n + b < m + 0.5
+					deleteat!(array_rest_corners, 1)
+				else
+					deleteat!(array_rest_corners, 2)
+				end
+			elseif number == 2
+				if k*(n + 1) + b < m + 0.5
+					deleteat!(array_rest_corners, 3)
+				else
+					deleteat!(array_rest_corners, 4)
+				end
+			elseif number == 3
+				if (m - b)/k < n + 0.5
+					deleteat!(array_rest_corners, 1)
+				else
+					deleteat!(array_rest_corners, 3)
+				end
+			elseif number == 4
+				if (m + 1 - b)/k < n + 0.5
+					deleteat!(array_rest_corners, 2)
+				else
+					deleteat!(array_rest_corners, 4)
+				end
+			end
+		end
+		
+		# Whether the particle leaves square or collides in the same square
 		leaves_square = array_rest_corners[1][3] == 1 && array_rest_corners[2][3] == 1 && array_rest_corners[3][3] == 1
+
+
+
+		# There is a difficulty: at the first step, we have a dummy place in places, which is obviously not the previous collision, and the corner which is behind the initial position of the particle doesn't get deleted and the algorithm may mistakenly count it as the first collision. We have to detect and delete it.
+		# The algorithm below didn't help. There is another one above, at steps == 1
+		#=
+		if steps == 1 && !leaves_square
+			hit_corners = Array{Int, 1}[]
+			if length(array_rest_corners) == 4
+				for i = 1:4
+					if array_rest_corners[i][3] == 0
+						push!(hit_corners, [array_rest_corners[i][1], array_rest_corners[i][2], i])
+					end
+				end
+				# Time to each hit corner: if it is negative, it is behind and needs to be deleted
+				for i = 1:length(hit_corners)
+					t1 = dot([hit_corners[i][1], hit_corners[i][2]] - [x, y], [vx, vy])
+					if t1 < 0
+						deleteat!(array_rest_corners, hit_corners[i][3])
+					end
+				end
+			
+			end
+					
+		end
+		=#
+
 
 		# If the particle exits the unit square without another collision
 		if leaves_square
@@ -346,6 +425,7 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 		   	end
 		   	
 		# Now what if the particle doesn't exit the square? Obtain where it doesn't (coords of obstacle), collide there and continue cycle   	
+		
 		elseif array_rest_corners[1][3] == 0
 			place = [array_rest_corners[1][1], array_rest_corners[1][2]]
 			push!(places, place)
@@ -389,7 +469,7 @@ function collide3d(x1, x2, v, r)
     return x
 end
 
-# And, to calculate the velocity after the collision at the point x1
+# And, to calculate the velocity after the collision at the point x1, and x2 is the center of the sphere
 function v_new(x1, x2, v)
 	n = x1 - x2
 	n = n/norm(n)
@@ -398,15 +478,6 @@ function v_new(x1, x2, v)
 	v = v/norm(v)
 	return v
 end
-
-# The time (with speed = 1 it is just the distance) in all 3 planes
-
-#t2 = sqrt((x[2] - q2)^2 + (x[3] - p2)^2)
-#t3 = sqrt((x[1] - q3)^2 + (x[3] - p3)^2)
-
-#s = max(t1, t2, t3)
-
-#x = x + v*s
 
 function collisions3d(x, v, r, maxsteps)
 
@@ -459,7 +530,8 @@ function collisions3d(x, v, r, maxsteps)
 			@show t2 = (p1 - x[2])/v[2]
 			@show t3 = (p2 - x[3])/v[3]
 			t = max(t1, t2, t3)
-			@show x += v*t
+			# When the coordinate is integer, sometimes the 2d version can't decide in which square it is. We need to extend a little further from the possible integer
+			@show x += v*(t + 0.01)
 			
 		end
 	
@@ -468,19 +540,44 @@ function collisions3d(x, v, r, maxsteps)
 	return places, coords, speeds
 end
 
+
 # End of module
 end
 
 #= Testing: using EfficientLorentz; x = [0.2, 0.3, 0.2]; v = [cos(1), sin(1), sin(0.4)]; r = 0.1
-collisions3d(x, v, r, 5)
+
 
 Line that will cross [3, 4, 5] with r = 0.1:
-using EfficientLorentz; x = [0, 0.445, 0.342]; v = [0.451207, 0.541449, 0.709398]; r = 0.1
 
+using EfficientLorentz; x = [0, 0.445, 0.342]; v = [0.451207, 0.541449, 0.709398]; r = 0.1
+collisions3d(x, v, r, 5)
 
 
 x = [-2.125652728087777,-2.1057861003273635,-3.0]
 v = [-0.4512069325775071,-0.5414489190929208,-0.7093978939968069]
+
+x = [-37.06038678750248, -44.027513426667056, -57.92519059385232]; v = [0.4512069325775123, 0.5414489190929171, 0.7093978939968061]
+
+2d version gives strange results too... Test:
+
+using EfficientLorentz; x = [0.445, 0.342]; v = [0.60672, 0.794915]; r = 0.2
+collisions(x[1], x[2], v[1], v[2], r, 3)
+
+using EfficientLorentz; x = [0.0,0.445]; v = [0.640184,0.768222]; r = 0.2
+
+Next test 3D
+
+using EfficientLorentz; x = [-1.96460353861745473485,12.0000000000739345148,-19.089208334145857042]; v = [0.492197878294012166407,0.739345146123457909362,-0.459467086423560331943]; r = 0.2
+
+This line really hits [0, 15, -21]
+
+!!!!!!!!!!!!!!
+Similar test with the start not from the inside of an obstacle:
+using EfficientLorentz; x = [-1.81694, 12.2218, -19.227]; v = [0.492197878294012166407,0.739345146123457909362,-0.459467086423560331943]; r = 0.2
+The algorithm gets stuck at xy, yz, xz = [0, 15], [15, -21], [-1, 20]
+
+using EfficientLorentz; x = [-31.5646794874135777267, 10.0000000000071421636, -8.86136400925839916656]; v = [-0.995170604930726595226, 0.0714216332842911117977, 0.0673380826933461717346]; r = 0.2
+collisions3d(x, v, r, 5)
 
 
 
