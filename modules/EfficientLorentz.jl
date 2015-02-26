@@ -457,7 +457,7 @@ end
 
 
 
-# to calculate the place where a particle will collide, if the obstacle have center x2, and radius r, and the particle have velocity v and initial position x1
+# to calculate the place where a particle will collide, if the obstacle has center x2, and radius r, and the particle has velocity v and initial position x1
 function collide3d(x1, x2, v, r)
     b = BigFloat(dot((x1 - x2), v))/norm(v)^2
     c = BigFloat(norm(x1 - x2)^2 - r^2)
@@ -507,34 +507,56 @@ function collisions3d(x, v, r, maxsteps)
 		# First collision in 2D (function first_collision() only works for a special set of initial conditions, that's why collisions() has so much code generalizing it)
 		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
 
-		@show q1, p1 = first(Pxy(x), v_xy, r) #x, y
-		@show q2, p2 = first(Pyz(x), v_yz, r) #y, z
-		@show q3, p3 = first(Pxz(x), v_xz, r) #x, z
+		@show x1, y1 = first(Pxy(x), v_xy, r) #x, y
+		@show y2, z2 = first(Pyz(x), v_yz, r) #y, z
+		@show x3, z3 = first(Pxz(x), v_xz, r) #x, z
 	
 		# Condition that all of them correspond to the same point (x, y, z) of collision
-		hit = q1 == q3 && p1 == q2 && p2 == p3
+		# hit = q1 == q3 && p1 == q2 && p2 == p3
+		# The condition above may miss a valid collision - see images. Below is a better one
 		
-		x_new = collide3d(x, [q1, p1, p2], v, r)
-	
-		# If the collision happens
-		if @show hit && x_new != false
-			@show v = v_new(x_new, x, v)
-			@show x = x_new
-			@show push!(places, [q1, p1, p2])
-			@show push!(coords, x)
-			@show push!(speeds, v)
-		# If it doesn't happen
-		elseif @show hit && x_new == false || !hit && x_new == false
-			@show q1, x[1], v[1]
-			@show t1 = (q1 - x[1])/v[1]
-			@show t2 = (p1 - x[2])/v[2]
-			@show t3 = (p2 - x[3])/v[3]
-			t = max(t1, t2, t3)
-			# When the coordinate is integer, sometimes the 2d version can't decide in which square it is. We need to extend a little further from the possible integer
-			@show x += v*(t + 0.01)
+		condition1 = x1 == x3
+		condition2 = y1 == y2
+		condition3 = z2 == z3
+		
+		# Possible hit
+		possible_hit = condition1 || condition2 || condition3		
+				
+		if @show possible_hit
+			# Check if there is a possible collision
+			if condition1
+				ball = [x1, y1, z3]
+			elseif condition2
+				ball = [x1, y1, z2]
+			elseif condition3
+				ball = [x3, y2, z2]
+			end
 			
-		end
-	
+			x_new = collide3d(x, ball, v, r)
+		
+			if @show x_new != false
+				# Definitely a collision
+				@show v = v_new(x_new, ball, v)
+				@show x = x_new
+				@show push!(places, ball)
+				@show push!(coords, x)
+				@show push!(speeds, v)
+			# If x_new returns false, continue moving from the farthest point
+			else
+				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
+				@show place_xy = collisions(x[1], x[2], v_xy[1], v_xy[2], r, 1)[2][2]
+				@show place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
+				@show x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) # Need to advance from the false collision point at least by a distance larger than a diameter, otherwise the algorithm may get stuck at the same point
+			end
+			
+		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest point it went and continue from there
+		else
+			@show t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
+			@show t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
+			@show t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
+			@show t = max(t1, t2, t3)
+			@show x += v*(t + 0.1)
+		end	
 	@show steps += 1
 	end
 	return places, coords, speeds
