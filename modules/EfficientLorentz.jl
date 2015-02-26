@@ -546,7 +546,8 @@ function collisions3d(x, v, r, maxsteps)
 				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
 				@show place_xy = collisions(x[1], x[2], v_xy[1], v_xy[2], r, 1)[2][2]
 				@show place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
-				@show x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) # Need to advance from the false collision point at least by a distance larger than a diameter, otherwise the algorithm may get stuck at the same point
+				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
+				@show x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) 
 			end
 			
 		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest point it went and continue from there
