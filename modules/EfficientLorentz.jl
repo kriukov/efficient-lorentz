@@ -1,5 +1,5 @@
 module EfficientLorentz
-export frac, efficient_algorithm, first_collision, collide, post_collision, dist_point_line, dist_point_line_sign, collisions, collisions3d
+export frac, efficient_algorithm, first_collision, collide, collide3d, v_new, dist_point_line, dist_point_line_sign, collisions, collisions3d, collisionsnd
 
 function frac(alpha, epsilon)
     p = 0; q = 0
@@ -543,6 +543,177 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 	return places, coords, speeds
 end
 
+
+
+## ND version
+
+function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
+	set_bigfloat_precision(precision)
+
+	N = length(x)
+	
+	if length(x) != length(v)
+		error("Dimensions mismatch")
+	end
+	
+	x = big(x)
+	v = big(v)
+	v = v/norm(v)
+	
+	places = Vector{BigInt}[]
+	coords = Vector{BigFloat}[]
+	speeds = Vector{BigFloat}[]
+
+	steps = 1
+	global_steps = 1
+	
+	while steps <= maxsteps
+	
+		# Projection functions on planes P(dim1, dim2, vec)
+		P(d1, d2, x) = [x[d1], x[d2]]
+		
+		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
+		
+		# Array of gathered 2D collision places
+		array_v2d = Vector{Int}[]
+		for i = 1:N
+			for j = i+1:N
+				v2d = P(i, j, v)
+				v2d = v2d/norm(v2d)
+				circle = first(P(i, j, x), v2d, r)
+				push!(array_v2d, [circle, [i, j]])
+			end
+		end
+		
+		@show array_v2d
+		
+		# Compare and collect coinciding circle coordinates between each two elements
+		NC = N*(N-1)/2
+		coinciding_points = Vector{Int}[] # Coordinate, dimension number
+		for i = 1:NC
+			for j = 1:NC
+				if i != j
+					if array_v2d[i][3] == array_v2d[j][3]
+						if array_v2d[i][1] == array_v2d[j][1]
+							push!(coinciding_points, [array_v2d[i][1], array_v2d[i][3]])
+						end
+						
+					elseif array_v2d[i][4] == array_v2d[j][4]
+						if array_v2d[i][2] == array_v2d[j][2]
+							push!(coinciding_points, [array_v2d[i][2], array_v2d[i][4]])
+						end
+						
+					elseif array_v2d[i][3] == array_v2d[j][4]
+						if array_v2d[i][1] == array_v2d[j][2]
+							push!(coinciding_points, [array_v2d[i][1], array_v2d[i][3]])
+						end
+					
+					elseif array_v2d[i][4] == array_v2d[j][3]
+						if array_v2d[i][2] == array_v2d[j][1]
+							push!(coinciding_points, [array_v2d[i][2], array_v2d[i][4]])
+						end
+						
+					end
+				end
+			end			
+		end
+		
+		# Clean up dupes
+		@show points = unique(coinciding_points)
+		
+		# It may happen that there is more than 1 coinciding point for a given dimension, and length(points) > N. We have to take one which is the closest to the original point
+		extra_points = Int[]
+		for i = 1:length(points)
+			for j = 1:length(points)
+				if i != j
+					if points[i][2] == points[j][2]
+						dim = points[i][2]
+						if abs(points[i][1] - x[dim]) > abs(points[j][1] - x[dim])
+							push!(extra_points, i)
+						end
+					end
+				end
+			end		
+		end
+		@show points
+		@show deleteat!(points, extra_points)
+		# Sort points according to dimension
+
+		#=
+		points1 = Int[]
+		if length(points) == N
+			j = 1
+			while j <= N
+				
+			
+				for i = 1:N
+					if j == points[i][j]
+					push!(points1, points[i][j])
+					end
+				end
+				j += 1
+			end
+			
+		end
+		@show points1
+		=#
+		
+		
+		# If there are coinciding points, it is a possible collision
+		if length(points) > 0
+			
+			ball = Int[]
+			
+			for i = 1:length(points)
+				push!(ball, points[i][1])
+			end
+			@show ball
+			
+			@show x_new = collide3d(x, ball, v, r)
+			
+			# If x_new does not output false, there is definitely a collision
+			if @show x_new != false
+				v = v_new(x_new, ball, v)
+				x = x_new
+				@show push!(places, ball)
+				@show push!(coords, x)
+				@show push!(speeds, v)
+				steps += 1
+			else
+				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
+				@show v_x1x2 = [v[1], v[2]]
+				@show v_x1x2 /= norm(v_x1x2)
+				@show place_x1x2 = collisions(x[1], x[2], v_x1x2[1], v_x1x2[2], r, 1)[2][2]
+				@show t1 = (place_x1x2[1] - x[1])/v_x1x2[1]
+				
+				newplace = BigFloat[]
+				push!(newplace, place_x1x2[1], place_x1x2[2])
+				for i = 3:N
+					push!(newplace, x[i] + v[i]*t1)
+				end
+				
+				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
+				@show x = newplace + v*(2r + 0.1) 
+			end
+			
+		# And if array points is empty, i.e., no coinciding points, we take the farthest point it went and continue from there
+		else
+			
+			times = BigFloat[]
+			for i = 1:N
+				push!(times, sqrt((array_v2d[i][1] - x[array_v2d[[3]]])^2 + (array_v2d[i][2] - x[array_v2d[4]])^2)/norm([v[array_v2d[3]], v[array_v2d[4]]]))		
+			end
+			@show t = findmax(times)[1]
+			@show x += v*t
+		
+		end
+
+		@show global_steps += 1	
+		
+		
+	end
+	
+end
 
 # End of module
 end

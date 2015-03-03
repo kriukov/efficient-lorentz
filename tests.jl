@@ -289,10 +289,11 @@ Step 0.3
 Maybe the variations are caused by chaoticity and not by this step?
 Step is unnecessary
 
+## ND tests
+Example: N = 5
 
-
-
-
+using EfficientLorentz; x = [0.213, 0.445, 0.331, 0.254, 0.188]; v = [0.347678, 0.541476, 0.233173, 0.414546, 0.599755]; N = 5; r = 0.1
+collisionsnd(x, v, r, 5)
 
 
 
