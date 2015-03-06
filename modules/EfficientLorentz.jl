@@ -499,9 +499,10 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 		condition3 = z2 == z3
 		
 		# Possible hit
-		possible_hit = condition1 || condition2 || condition3		
+		#possible_hit = condition1 || condition2 || condition3
+		possible_hit = (condition1 && y2 <= y1 && z2 <= z3) || (condition2 && x3 <= x1 && z3 <= z2) || (condition3 && x1 <= x3 && y1 <= y2)
 				
-		if possible_hit
+		if @show possible_hit
 			# Check if there is a possible collision
 			if condition1
 				ball = [x1, y1, z3]
@@ -513,14 +514,14 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 			
 			x_new = collide3d(x, ball, v, r)
 		
-			if x_new != false
+			if @show x_new != false
 				# Definitely a collision
 				v = v_new(x_new, ball, v)
 				x = x_new
-				push!(places, ball)
-				push!(coords, x)
-				push!(speeds, v)
-				steps += 1
+				@show push!(places, ball)
+				@show push!(coords, x)
+				@show push!(speeds, v)
+				@show steps += 1
 			# If x_new returns false, continue moving from the farthest point
 			else
 				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
@@ -538,7 +539,7 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 			t = max(t1, t2, t3)
 			x += v*t
 		end	
-	#steps += 1
+
 	end
 	return places, coords, speeds
 end
