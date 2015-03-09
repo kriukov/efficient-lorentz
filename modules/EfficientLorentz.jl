@@ -486,9 +486,9 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 		# First collision in 2D (function first_collision() only works for a special set of initial conditions, that's why collisions() has so much code generalizing it)
 		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
 
-		x1, y1 = first(Pxy(x), v_xy, r) #x, y
-		y2, z2 = first(Pyz(x), v_yz, r) #y, z
-		x3, z3 = first(Pxz(x), v_xz, r) #x, z
+		@show x1, y1 = first(Pxy(x), v_xy, r) #x, y
+		@show y2, z2 = first(Pyz(x), v_yz, r) #y, z
+		@show x3, z3 = first(Pxz(x), v_xz, r) #x, z
 	
 		# Condition that all of them correspond to the same point (x, y, z) of collision
 		# hit = q1 == q3 && p1 == q2 && p2 == p3
@@ -499,10 +499,31 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 		condition3 = z2 == z3
 		
 		# Possible hit
-		#possible_hit = condition1 || condition2 || condition3
-		possible_hit = (condition1 && y2 <= y1 && z2 <= z3) || (condition2 && x3 <= x1 && z3 <= z2) || (condition3 && x1 <= x3 && y1 <= y2)
-				
-		if @show possible_hit
+		possible_hit = condition1 || condition2 || condition3
+		#possible_hit = (condition1 && y2 <= y1 && z2 <= z3) || (condition2 && x3 <= x1 && z3 <= z2) || (condition3 && x1 <= x3 && y1 <= y2)
+		
+		# Also, we make sure that the times to the suspected ball are roughly the same
+		
+		if condition1
+			# ball x1, y1, z3
+			time_xy = norm([x1 - x[1], y1 - x[2]])/norm([v[1], v[2]])
+			time_yz = norm([y1 - x[2], z3 - x[3]])/norm([v[2], v[3]])
+			time_xz = norm([x1 - x[1], z3 - x[3]])/norm([v[1], v[3]])
+		elseif condition2
+			# ball x1, y1, z2
+			time_xy = norm([x1 - x[1], y1 - x[2]])/norm([v[1], v[2]])
+			time_yz = norm([y1 - x[2], z2 - x[3]])/norm([v[2], v[3]])
+			time_xz = norm([x1 - x[1], z2 - x[3]])/norm([v[1], v[3]])
+		elseif condition3
+			# ball x3, y2, z2
+			time_xy = norm([x3 - x[1], y2 - x[2]])/norm([v[1], v[2]])
+			time_yz = norm([y2 - x[2], z2 - x[3]])/norm([v[2], v[3]])
+			time_xz = norm([x3 - x[1], z2 - x[3]])/norm([v[1], v[3]])
+		end
+		
+		approx(x, y, tol) = abs(x - y) <= tol
+		
+		if @show possible_hit && approx(time_xy, time_yz, 0.5) && approx(time_xz, time_yz, 0.5)
 			# Check if there is a possible collision
 			if condition1
 				ball = [x1, y1, z3]
@@ -524,20 +545,43 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 				@show steps += 1
 			# If x_new returns false, continue moving from the farthest point
 			else
-				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
+				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there - wrong idea: misses balls
+				# We need to find nearest place and continue from there
 				place_xy = collisions(x[1], x[2], v_xy[1], v_xy[2], r, 1)[2][2]
-				place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
+				place_yz = collisions(x[2], x[3], v_yz[1], v_yz[2], r, 1)[2][2]
+				place_xz = collisions(x[1], x[3], v_xz[1], v_xz[2], r, 1)[2][2]
+				#place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
+				
+				l1 = norm(place_xy - [x[1], x[2]])
+				l2 = norm(place_yz - [x[2], x[3]])
+				l3 = norm(place_xz - [x[1], x[3]])
+				
+				l = max(l1, l2, l3)
+				
 				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
-				x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) 
+				
+				if l == l1
+					place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
+					x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) 
+				elseif l == l2
+					place_x = x[1] + v[1]/v[2]*(place_xy[2] - x[2])
+					x = [place_x, place_yz[1], place_yz[2]]	+ v*(2r + 0.1) 
+				elseif l == l3
+					place_y = x[2] + v[2]/v[1]*(place_xy[1] - x[1])
+					x = [place_xz[1], place_y, place_xz[2]]	+ v*(2r + 0.1) 
+				end
+				
+
+				
 			end
 			
-		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest point it went and continue from there
+		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest (!!! nearest - see timeline) point it went and continue from there
 		else
 			t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
 			t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
 			t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
-			t = max(t1, t2, t3)
-			x += v*t
+			t = min(t1, t2, t3)
+			x += v*t + v*(2r + 0.1)
 		end	
 
 	end

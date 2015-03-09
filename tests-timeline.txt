@@ -408,9 +408,50 @@ Need to "smudge" the values because frac() gets confused when they are too exact
 
 x = [0.00001,-0.003, 0.002]; v = [1.002, 1.007, 0.49997]
 
-Normalize velocity and advance from the origin along the trajectory to come out of the (0,0,0) ball of radius r = 2:
+Normalize velocity and advance from the origin along the trajectory to come out of the (0,0,0) ball of radius r = 0.2:
 
-x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]
+using EfficientLorentz; x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.2
+
+The next collision (according to C) is (0,0,0), but E misses it.
+Coords and speed after first collision:
+x = [1.86388978276529009557,1.87018040234950435349,0.932022938941261145426]; v = [-0.695301102766206562253,-0.629096185054838065367,-0.347554839473637600025]; r = 0.2
+
+With time corrections, it improved, but it misses again:
+starting from place [-2,2,-1]:
+x = [-2.02199478575371421668e+00,2.19282862284883599963e+00,-9.5169522166628252774e-01]; v = [-3.22442298116371155056e-01,8.17480386148925560798e-01,4.77238706149487402109e-01]
+
+C says next is [-4,7,2]
+
+E gives 
+(x1,y1) = first(Pxy(x),v_xy,r) => BigInt[-3,5]
+(y2,z2) = first(Pyz(x),v_yz,r) => BigInt[4,0]
+(x3,z3) = first(Pxz(x),v_xz,r) => BigInt[-4,2]
+
+but then proceeds and misses it. Maybe we advanced too far? Let's advance to the closest instead
+
+Helps. But after place [17,22,5]:
+
+x = [16.8289990492993435135, 22.0452392128352392103, 4.90666143090062079925]; v = [-0.388641823164963131992, -0.169475879050012219677, -0.905668515356054074767]; r = 0.2
+
+C and E diverge. Found out: x is inside the ball! Need to advance a little further?
+
+x = [16.8289992589530794861, 22.0452390937991342373, 4.9066609891115339926]; v = [-0.388637381921072624002,-0.169477505754780016331, -0.905670116773581549492]
+
+collisions3d_classical(x, v, r, 10, 64)[2]
+collisions3d(x, v, r, 5, 64)[1]
+
+A little back from the problematic point: [10, 26, 7]
+C: x = [7.91436647375016094413, 28.8416679287440336863, 4.08716567210670571938]; v = [0.482967544197343598883, -0.62829344671166042184, 0.609909580242160881999]
+E: x = [7.91436489051200855538, 28.8416677450009912818, 4.08716378290269764144]; v = [0.482950923552208117104, -0.628308912921221623677, 0.609906808769849669732]
+
+WM: so we do have a collision at [10, 26, 7]. C and E agree here. Proceed:
+
+C: x = [10.0764053422964544949, 26.029067229247587742, 6.81746967415678619328]; v = [0.837062156955717057171, -0.493583634870910865824, -0.236013009769084225237]
+E: x = [10.0763022243879987808, 26.029033106971180736, 6.81742111498575890103]; v = [0.836793467368476666293, -0.493671312143907367321, -0.236781182815600773207]
+
+WM 3D plot: E is correct! C is wrong, because of the error when the collision point for some reason turns out to be (very slightly) inside a ball. So the place of collision is [12,20,-6], not [13,21,-2].
+
+
 
 
 
