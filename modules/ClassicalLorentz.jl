@@ -222,6 +222,7 @@ function collisions3d_classical(x0::Vector, v0::Vector, r, tmax, precision::Inte
 
 	set_bigfloat_precision(precision)
 	x0 = big(x0); v0 = big(v0)
+	#x0 = [BigFloat("x0[1]"), BigFloat("x0[2]"), BigFloat("x0[3]")]; v0 = [BigFloat("v0[1]"), BigFloat("v0[2]"), BigFloat("v0[3]")]
 	# Normalize speed
 	v0 /= norm(v0)
 	places = Array{BigFloat, 1}[]
@@ -256,9 +257,9 @@ function collisions3d_classical(x0::Vector, v0::Vector, r, tmax, precision::Inte
 			
 			discr = vr^2 - xcrossv^2
 			# Throw away complex time values if any, but there shouldn't be
-			if discr >= 0
+			#if discr >= 0
 				t1 = (-dot(v0, x0) - sqrt(discr))/norm(v0)^2
-			end
+			#end
 			
 			N0 = x0 + v0*t1
 			N = N0/norm(N0)
@@ -272,9 +273,13 @@ function collisions3d_classical(x0::Vector, v0::Vector, r, tmax, precision::Inte
 			push!(circles, [n, m, l])
 			push!(speeds, v1)
 			push!(times, t)
+			norm(x1), norm(x1 + [n,m,l] - [n,m,l])
 			#print("{$(r1[1] + n), $(r1[2] + m)}, ")
 			
+			x0 += v0*0.001
+			
 			x0, d, n, m, l = crossing3d(x1, v1, n, m, l)
+			
 						
 			# The speed direction will stay the same
 			v0 = v1
