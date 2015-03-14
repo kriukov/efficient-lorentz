@@ -523,7 +523,7 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 		
 		approx(x, y, tol) = abs(x - y) <= tol
 		
-		if possible_hit && approx(time_xy, time_yz, 0.5) && approx(time_xz, time_yz, 0.5)
+		if (possible_hit && approx(time_xy, time_yz, 0.5)) || (possible_hit && approx(time_xz, time_yz, 0.5))
 			# Check if there is a possible collision
 			if condition1
 				ball = [x1, y1, z3]
