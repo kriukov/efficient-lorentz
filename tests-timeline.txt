@@ -554,8 +554,84 @@ Call WM for help. Classical wins again! Look for step-by-step E procedure
 
 ##################
 
+using EfficientLorentz;
+
 x = [1.89717182844582602939e+00,1.90362852285732340833e+00,9.48629721354036554277e-01]; v = [-7.04877071895435892979e-01,-6.15519586395728865533e-01,-3.52539291823404229151e-01]; r = 0.15
 
 Right: 2,4,1. Wrong: 1,4,1. When tested, a different one showed up. Stuck...
+
+
+####
+
+compare_lorentz3d(x, v, 0.36, 10, 64)
+
+
+True: 2,4,1. False: 1,4,1 - what E gives.
+There may be two conditions out of 1, 2, 3 that are true! Then it can't decide and may decide on a wrong one (whichever comes first)!
+However, collide3d returns false on a right one and a result on a false one.
+Need to plot step-by-step points of trajectory in WM to see where it goes wrong.
+
+
+###############
+
+Let's start with this one:
+x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986];
+
+After two steps (after which we have a discrepancy):
+
+x = [1.97484775450435845402e-01,2.83989775212701109396e-01,9.97475365105846594393e-02]; v = [3.91849048695213618811e-01,8.97636760917618726412e-01,2.01748775674059307268e-01]
+
+possible_hit: false. advance to 0.826701, 1.72538, 0.423708. WM: it is on the trajectory.
+
+possible_hit: true (z's coincide, but it is a wrong place). x_new: false. advance to 1.13375888039167151253e+00, 3.58067543555783089821e+00, 8.40695684709138548222e-01. WM: it is NOT on the trajectory!!! This is what is wrong.
+
+
+
+
+x = [0.532282, 0.531928, 0.267589]; v = [0.0174497, 0.000304586, 0.999848]; r = 0.3
+
+1 and 2 passed, 3 diverged.
+x = [1.07956912902745839362e+01,4.71932460899421546274e-02,5.97785452222911003251e+02]; v = [-9.91425164663099117376e-01,-1.26681591839447120493e-01,-3.20611472310415919094e-02]; r = 0.3
+
+Diverged at element 3 - increase precision
+Classical: BigInt[10,0,598]; Efficient: BigInt[-13,-3,597]
+
+WM: E is right. But C is also right. Did E miss a valid ball?
+
+
+x = [0.532282, 0.531928, 0.267589]; v = [-0.83142, -0.393939, 0.391857]; r = 0.35
+diverge at element 1: BigInt[1,1,0]; Efficient: BigInt[-7,-3,4]
+
+WM: E is right, C is wrong. Seems like C goes backwards again. Fixed.
+
+
+x = [1.12572305500350674872e+00,-1.70728533206424794712e+00,-1.44954601913314947928e-01]; v = [7.73314394646670227732e-01,-4.20129722929722670938e-01,-4.74842987674082045945e-01]; r = 0.35
+
+Classical: BigInt[4,-3,-2]; Efficient: BigInt[6,-4,-3]
+
+Both correct, but E missed a ball.
+Found out reason: 2r+0.1 is too much advanced (0.8) for this radius, so it flew by the valid ball. Fixed.
+
+Now found another discrepancy:
+
+x = [2.2000297927544893278e+01,9.06653611895305306572e-01,4.09964134096038358257e+02]; v = [5.44662959760666846806e-02,-6.69060196931100424123e-01,7.41209737851011116032e-01]; r = 0.1
+Classical: BigInt[22,0,411]; Efficient: BigInt[25,-37,452]
+
+
+Got rid of time measurements. Fixed one issue. Now new issues appeared!
+
+x = [-1.95002088637292207219e+00,2.80928016023846817959e+00,-9.66413828405320322098e-01]; v = [-1.15934820434215499825e-01,-9.92973826741629231015e-01,2.37085810830404100267e-02]
+Classical: BigInt[-2,2,-1]; Efficient: BigInt[-2,3,-1]
+
+###################
+
+Reverted to the old version.
+
+Did a big test with various angles and watched where the discrepancy was at small differences:
+
+x = [2.6972892557756099112e+01,9.93450574027347994626e-01,1.20415005011345926933e+01]; v = [7.40249275699539031773e-01,-2.58928867986558333782e-02,6.71833735562259367247e-01]; r = 0.05
+
+Now C cannot proceed because the initial position is in the ball...
+
 
 

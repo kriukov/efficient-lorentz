@@ -218,16 +218,16 @@ function crossing3d(x, v, n, m, l)
 end
 
 
-function collisions3d_classical(x0::Vector, v0::Vector, r, tmax, precision::Integer=64)
+function collisions3d_classical(x0, v0, r, tmax, precision::Integer=64)
 
 	set_bigfloat_precision(precision)
 	x0 = big(x0); v0 = big(v0)
 	#x0 = [BigFloat("x0[1]"), BigFloat("x0[2]"), BigFloat("x0[3]")]; v0 = [BigFloat("v0[1]"), BigFloat("v0[2]"), BigFloat("v0[3]")]
 	# Normalize speed
 	v0 /= norm(v0)
-	places = Array{BigFloat, 1}[]
-	circles = Vector[]
-	speeds = Array{BigFloat, 1}[] # Modification to collect speeds too; may be turned off
+	places = Vector{BigFloat}[]
+	circles = Vector{BigInt}[]
+	speeds = Vector{BigFloat}[]
 	times = BigFloat[]
 	# Put the starting point into the places array
 	push!(places, x0)	
@@ -251,11 +251,12 @@ function collisions3d_classical(x0::Vector, v0::Vector, r, tmax, precision::Inte
 		# Will hit or miss? Check the condition for hitting - derivation pp. 83-84
 		xcrossv = norm(cross(v0, x0))
 		vr = norm(v0)*r
-		if xcrossv < vr
+		discr = vr^2 - xcrossv^2
+		if xcrossv < vr && (-dot(v0, x0) - sqrt(discr)) > 0
 			#println("hit")
 			# Then reflect
 			
-			discr = vr^2 - xcrossv^2
+			
 			# Throw away complex time values if any, but there shouldn't be
 			#if discr >= 0
 				t1 = (-dot(v0, x0) - sqrt(discr))/norm(v0)^2
