@@ -610,7 +610,7 @@ x = [1.12572305500350674872e+00,-1.70728533206424794712e+00,-1.44954601913314947
 Classical: BigInt[4,-3,-2]; Efficient: BigInt[6,-4,-3]
 
 Both correct, but E missed a ball.
-Found out reason: 2r+0.1 is too much advanced (0.8) for this radius, so it flew by the valid ball. Fixed.
+Found out reason: 2r+0.1 is too much advanced (0.8) for this radius, so it flew by the valid ball and skipped it. Fixed.
 
 Now found another discrepancy:
 
@@ -632,6 +632,26 @@ Did a big test with various angles and watched where the discrepancy was at smal
 x = [2.6972892557756099112e+01,9.93450574027347994626e-01,1.20415005011345926933e+01]; v = [7.40249275699539031773e-01,-2.58928867986558333782e-02,6.71833735562259367247e-01]; r = 0.05
 
 Now C cannot proceed because the initial position is in the ball...
+
+
+Back to the same test as in the ods file.
+
+x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.2
+
+x =  1.68289992589530794861e+01
+ 2.20452390937991342373e+01
+ 4.9066609891115339926e+00 
+ 
+ v =  -3.88637381921072624002e-01
+ -1.69477505754780016331e-01
+ -9.05670116773581549492e-01
+
+########################################
+
+x = [1.89430371663748794661e+00,2.88306486791354630531e+00,1.91308354259822142819e+00]; v = [5.68095923372402998103e-02,-8.414063192665022675e-01,-5.37408667697938626537e-01]; r = 0.18
+Classical: BigInt[2,0,0]; Efficient: BigInt[3,-11,-7]
+
+The same stuff: two out of the three conditions are true, and it picks first (which does not correspond to the valid ball), x_new finds it false, and it advances, skipping the valid ball in the other condition.
 
 
 

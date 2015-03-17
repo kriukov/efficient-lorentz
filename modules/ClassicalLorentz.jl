@@ -239,7 +239,7 @@ function collisions3d_classical(x0, v0, r, tmax, precision::Integer=64)
 	m = ifloor(x0[2] + 0.5)
 	l = ifloor(x0[3] + 0.5)
 	
-	# Place the first initial position into square [-0.5, 0.5)^2
+	# Place the first initial position into cube [-0.5, 0.5)^3
 	x0 -= [n, m, l]
 	
 	if norm(x0) < r
@@ -259,7 +259,7 @@ function collisions3d_classical(x0, v0, r, tmax, precision::Integer=64)
 			
 			# Throw away complex time values if any, but there shouldn't be
 			#if discr >= 0
-				t1 = (-dot(v0, x0) - sqrt(discr))/norm(v0)^2
+			t1 = (-dot(v0, x0) - sqrt(discr))/norm(v0)^2
 			#end
 			
 			N0 = x0 + v0*t1
@@ -277,7 +277,7 @@ function collisions3d_classical(x0, v0, r, tmax, precision::Integer=64)
 			norm(x1), norm(x1 + [n,m,l] - [n,m,l])
 			#print("{$(r1[1] + n), $(r1[2] + m)}, ")
 			
-			x0 += v0*0.001
+			#x0 += v0*0.001 # Don't know why it was here. Commented out.
 			
 			x0, d, n, m, l = crossing3d(x1, v1, n, m, l)
 			

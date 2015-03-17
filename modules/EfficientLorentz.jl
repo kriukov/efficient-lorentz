@@ -433,12 +433,12 @@ end
 
 # to calculate the place where a particle will collide, if the obstacle has center x2, and radius r, and the particle has velocity v and initial position x1
 function collide3d(x1, x2, v, r)
-    b = BigFloat(dot((x1 - x2), v))/norm(v)^2
-    c = BigFloat(norm(x1 - x2)^2 - r^2)
-    if BigFloat(b^2 - c) < BigFloat(0)   # if there is no collision, return false
+    b = (dot((x1 - x2), v))/norm(v)^2
+    c = (norm(x1 - x2)^2 - r^2)
+    if (b^2 - c) < (0)   # if there is no collision, return false
     return false
     end
-    t = -b - sqrt(BigFloat(b^2 - c))
+    t = -b - sqrt((b^2 - c))
     x = v*t + x1
     return x
 end
@@ -453,8 +453,8 @@ function v_new(x1, x2, v)
 	return v
 end
 
-function collisions3d(x, v, r, maxsteps, precision::Integer=64)
-	set_bigfloat_precision(precision)
+function collisions3d(x, v, r, maxsteps, prec::Integer=64)
+	set_bigfloat_precision(prec)
 	
 	x = big(x)
 	v = big(v)
@@ -484,11 +484,11 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 		v_xz = v_xz/norm(v_xz)
 		
 		# First collision in 2D (function first_collision() only works for a special set of initial conditions, that's why collisions() has so much code generalizing it)
-		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
+		first(x, v, r, prec) = collisions(x[1], x[2], v[1], v[2], r, 1, prec)[1][1]
 
-		x1, y1 = first(Pxy(x), v_xy, r) #x, y
-		y2, z2 = first(Pyz(x), v_yz, r) #y, z
-		x3, z3 = first(Pxz(x), v_xz, r) #x, z
+		x1, y1 = first(Pxy(x), v_xy, r, prec) #x, y
+		y2, z2 = first(Pyz(x), v_yz, r, prec) #y, z
+		x3, z3 = first(Pxz(x), v_xz, r, prec) #x, z
 	
 		# Condition that all of them correspond to the same point (x, y, z) of collision
 		# hit = q1 == q3 && p1 == q2 && p2 == p3
@@ -503,12 +503,40 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 		
 		if possible_hit
 			# Check if there is a possible collision
-			if condition1
+			if condition1 && !condition2 && !condition3
 				ball = [x1, y1, z3]
-			elseif condition2
+			elseif condition2 && !condition1 && !condition3
 				ball = [x1, y1, z2]
-			elseif condition3
+			elseif condition3 && !condition1 && !condition2
 				ball = [x3, y2, z2]
+			elseif condition1 && condition2 && !condition3
+				ball = [x1, y1, z3]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x1, y1, z2]
+				end
+			elseif condition1 && !condition2 && condition3
+				ball = [x1, y1, z3]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x3, y2, z2]
+				end
+			elseif !condition1 && condition2 && condition3
+				ball = [x1, y1, z2]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x3, y2, z2]
+				end
+			elseif condition1 && condition2 && condition3
+				ball = [x1, y1, z3]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x1, y1, z2]
+				end
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x3, y2, z2]
+				end
 			end
 			
 			x_new = collide3d(x, ball, v, r)
@@ -531,7 +559,7 @@ function collisions3d(x, v, r, maxsteps, precision::Integer=64)
 								
 			end
 			
-		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest (!!! nearest - see timeline) point it went and continue from there
+		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest (!!! nearest - see timeline) point it went and continue from a little further from there
 		else
 			t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
 			t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])

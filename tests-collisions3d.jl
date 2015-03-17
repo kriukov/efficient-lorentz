@@ -35,7 +35,7 @@ end
 #x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.2
 #compare_lorentz3d(x, v, r, 100, 64)
 
-
+#=
 diverging_points = Array{BigFloat, 1}[]
 x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.05
 for deg = 1:10
@@ -49,4 +49,6 @@ for deg = 1:10
 end
 
 println(diverding_points)
+=#
+
 
