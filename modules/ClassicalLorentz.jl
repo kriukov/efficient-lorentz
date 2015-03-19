@@ -51,12 +51,12 @@ end
 
 
 # Calculates the coordinates of places and of each hit obstacle of the collisions given the time
-function collisions_classical(x::Vector, v::Vector, r, tmax, precision::Integer=64)
+function collisions_classical(x, v, r, tmax, prec::Integer=64)
 
-	set_bigfloat_precision(precision)
+	set_bigfloat_precision(prec)
 	x = big(x); v = big(v)
 	places = Array{BigFloat, 1}[]
-	circles = Vector[]
+	circles = Vector{BigInt}[]
 	speeds = Array{BigFloat, 1}[] # Modification to collect speeds too; may be turned off
 	times = BigFloat[]
 	# Put the starting point into the places array

@@ -203,6 +203,7 @@ end
 function collide(q, p, x, y, vx, vy, r)
 	r0 = [x, y]
 	v0 = [vx, vy]
+	v0 /= norm(v0)
 	R = [q, p]
 	crossz(x, y) = x[1]*y[2] - x[2]*y[1]
 	discr = norm(v0)^2*r^2 - (crossz(v0, r0-R))^2
@@ -219,7 +220,10 @@ dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + 1)
 dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
 #-> Finds the trajectory
-function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
+function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
+	set_bigfloat_precision(prec)
+	x = big(x); y = big(y); vx = big(vx); vy = big(vy)
+	
 	# Normalize velocity if it wasn't normalized
 	v = sqrt(vx^2 + vy^2)
 	vx1 = vx/v
@@ -227,8 +231,6 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 	vx = vx1
 	vy = vy1
 	
-	set_bigfloat_precision(precision)
-	x = big(x); y = big(y); vx = big(vx); vy = big(vy)
 	steps = 1
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
@@ -294,27 +296,28 @@ function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 					number = i
 				end				
 			end
-			# number: 1 = left, 2 = right, 3 = bottom, 4 = top
+			# wall number: 1 = left, 2 = right, 3 = bottom, 4 = top
+			# corner number: 1 = bottom left, 2 = top left, 3 = bottom right, 4 = top right
 			if number == 1
-				if k*n + b < m + 0.5
+				if k*n + b < m + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0 # Make sure that the time to the wrong ball is also negative
 					deleteat!(array_rest_corners, 1)
 				else
 					deleteat!(array_rest_corners, 2)
 				end
 			elseif number == 2
-				if k*(n + 1) + b < m + 0.5
+				if k*(n + 1) + b < m + 0.5 && dot([n + 1, m] - [x, y], [vx, vy]) < 0
 					deleteat!(array_rest_corners, 3)
 				else
 					deleteat!(array_rest_corners, 4)
 				end
 			elseif number == 3
-				if (m - b)/k < n + 0.5
+				if (m - b)/k < n + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0
 					deleteat!(array_rest_corners, 1)
 				else
 					deleteat!(array_rest_corners, 3)
 				end
 			elseif number == 4
-				if (m + 1 - b)/k < n + 0.5
+				if (m + 1 - b)/k < n + 0.5 && dot([n, m + 1] - [x, y], [vx, vy]) < 0
 					deleteat!(array_rest_corners, 2)
 				else
 					deleteat!(array_rest_corners, 4)
