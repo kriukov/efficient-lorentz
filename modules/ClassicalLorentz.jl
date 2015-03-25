@@ -51,10 +51,10 @@ end
 
 
 # Calculates the coordinates of places and of each hit obstacle of the collisions given the time
-function collisions_classical(x, v, r, tmax, prec::Integer=64)
+function collisions_classical(x::Vector, v::Vector, r, tmax, prec::Integer=64)
 
 	set_bigfloat_precision(prec)
-	x = big(x); v = big(v)
+	x = big(x); v = big(v); r = big(r)
 	places = Array{BigFloat, 1}[]
 	circles = Vector{BigInt}[]
 	speeds = Array{BigFloat, 1}[] # Modification to collect speeds too; may be turned off
@@ -83,7 +83,7 @@ function collisions_classical(x, v, r, tmax, prec::Integer=64)
 		vr = norm(v)*r
 		discr = vr^2 - vcrossx^2
 		
-		if vcrossx < vr && (-dot(v, x) - sqrt(discr)) > 0 # To make sure it does not go backwards
+		if vcrossx < vr && (-dot(v, x) - sqrt(discr)) >= 0 # To make sure it does not go backwards
 			#println("hit")
 			# Then reflect
 

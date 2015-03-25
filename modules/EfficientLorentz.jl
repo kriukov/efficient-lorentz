@@ -221,8 +221,7 @@ dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
 #-> Finds the trajectory
 function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
-	set_bigfloat_precision(prec)
-	x = big(x); y = big(y); vx = big(vx); vy = big(vy)
+	
 	
 	# Normalize velocity if it wasn't normalized
 	v = sqrt(vx^2 + vy^2)
@@ -230,6 +229,9 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 	vy1 = vy/v
 	vx = vx1
 	vy = vy1
+	
+	set_bigfloat_precision(prec)
+	x = big(x); y = big(y); vx = big(vx); vy = big(vy); r = big(r)
 	
 	steps = 1
 	places = Vector{BigInt}[]
