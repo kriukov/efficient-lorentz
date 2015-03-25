@@ -461,8 +461,7 @@ end
 function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 	set_bigfloat_precision(prec)
 	
-	x = big(x)
-	v = big(v)
+	x = big(x);	v = big(v); r = big(r)
 	v = v/norm(v)
 	
 	places = Vector{BigInt}[]

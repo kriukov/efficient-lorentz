@@ -221,7 +221,7 @@ end
 function collisions3d_classical(x0, v0, r, tmax, precision::Integer=64)
 
 	set_bigfloat_precision(precision)
-	x0 = big(x0); v0 = big(v0)
+	x0 = big(x0); v0 = big(v0); r = big(r)
 	#x0 = [BigFloat("x0[1]"), BigFloat("x0[2]"), BigFloat("x0[3]")]; v0 = [BigFloat("v0[1]"), BigFloat("v0[2]"), BigFloat("v0[3]")]
 	# Normalize speed
 	v0 /= norm(v0)
