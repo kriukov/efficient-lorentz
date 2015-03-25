@@ -4,14 +4,16 @@ using EfficientLorentz
 diverding_points = Real[]
 
 function compare_lorentz3d(x, v, r, t, precision)
-	elements_classical = collisions3d_classical(x, v, r, t, precision)[2]
-	places_classical = collisions3d_classical(x, v, r, t, precision)[1]
-	speeds_classical = collisions3d_classical(x, v, r, t, precision)[3]
+	classical = collisions3d_classical(x, v, r, t, precision)
+	elements_classical = classical[2]
+	places_classical = classical[1]
+	speeds_classical = classical[3]
 	l = length(places_classical)
 	
-	elements_efficient = collisions3d(x, v, r, l, precision)[1]
-	places_efficient = collisions3d(x, v, r, l, precision)[2]
-	speeds_efficient = collisions3d(x, v, r, l, precision)[3]
+	efficient = collisions3d(x, v, r, l, precision)
+	elements_efficient = efficient[1]
+	places_efficient = efficient[2]
+	speeds_efficient = efficient[3]
 	
 	div_place = 0
 	
@@ -44,7 +46,7 @@ for deg = 1:10
 		theta = deg1*pi/180
 		v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
 		println("$deg, $deg1")
-		@show push!(diverging_points, [deg, deg1, norm(compare_lorentz3d(x, v, r, 4000, 64))])
+		@show push!(diverging_points, [deg, deg1, norm(compare_lorentz3d(x, v, r, 20000, 256))])
 	end
 end
 

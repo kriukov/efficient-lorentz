@@ -222,6 +222,9 @@ dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 #-> Finds the trajectory
 function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 	
+	set_bigfloat_precision(prec)
+	#x = big(x); y = big(y); vx = big(vx); vy = big(vy); r = big(r)
+	x = BigFloat("$x"); y = BigFloat("$y"); vx = BigFloat("$vx"); vy = BigFloat("$vy"); r = BigFloat("$r");   
 	
 	# Normalize velocity if it wasn't normalized
 	v = sqrt(vx^2 + vy^2)
@@ -230,8 +233,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 	vx = vx1
 	vy = vy1
 	
-	set_bigfloat_precision(prec)
-	x = big(x); y = big(y); vx = big(vx); vy = big(vy); r = big(r)
+	
 	
 	steps = 1
 	places = Vector{BigInt}[]
@@ -257,6 +259,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 		push!(array_corners, [n, m], [n, m+1], [n+1, m], [n+1, m+1])
 		
 		d(i) = dist_point_line(array_corners[i][1], array_corners[i][2], k, b)
+		#dsign(i) = dist_point_line_sign(array_corners[i][1], array_corners[i][2], k, b)
 		
 		j = 0
 		for i = 1:length(array_corners)
@@ -271,7 +274,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 		array_rest_corners = Array{Int, 1}[]
 		for i = 1:4
 			if i != j
-				push!(array_rest_corners, [array_corners[i], d(i) >= r])
+				push!(array_rest_corners, [array_corners[i], !(d(i) < r && dot([vx, vy], array_corners[i] - [x, y]) > 0)]) # The dot() added to prevent counting a backward ball - p. 86 nb. unam1
 			end
 		end
 		
