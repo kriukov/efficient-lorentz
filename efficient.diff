@@ -1,0 +1,209 @@
+1,2d0
+< module EfficientLorentz
+< export frac, efficient_algorithm, first_collision, collide, collide3d, v_new, dist_point_line, dist_point_line_sign, collisions, collisions3d, collisionsnd
+206d203
+< 	v0 /= norm(v0)
+223,225c220
+< function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
+< 	
+< 	
+---
+> function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
+233c228
+< 	set_bigfloat_precision(prec)
+---
+> 	set_bigfloat_precision(precision)
+235d229
+< 	
+301,302c295
+< 			# wall number: 1 = left, 2 = right, 3 = bottom, 4 = top
+< 			# corner number: 1 = bottom left, 2 = top left, 3 = bottom right, 4 = top right
+---
+> 			# number: 1 = left, 2 = right, 3 = bottom, 4 = top
+304c297
+< 				if k*n + b < m + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0 # Make sure that the time to the wrong ball is also negative
+---
+> 				if k*n + b < m + 0.5
+310c303
+< 				if k*(n + 1) + b < m + 0.5 && dot([n + 1, m] - [x, y], [vx, vy]) < 0
+---
+> 				if k*(n + 1) + b < m + 0.5
+316c309
+< 				if (m - b)/k < n + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0
+---
+> 				if (m - b)/k < n + 0.5
+322c315
+< 				if (m + 1 - b)/k < n + 0.5 && dot([n, m + 1] - [x, y], [vx, vy]) < 0
+---
+> 				if (m + 1 - b)/k < n + 0.5
+441,443c434,436
+<     b = (dot((x1 - x2), v))/norm(v)^2
+<     c = (norm(x1 - x2)^2 - r^2)
+<     if (b^2 - c) < (0)   # if there is no collision, return false
+---
+>     b = BigFloat(dot((x1 - x2), v))/norm(v)^2
+>     c = BigFloat(norm(x1 - x2)^2 - r^2)
+>     if BigFloat(b^2 - c) < BigFloat(0)   # if there is no collision, return false
+446c439
+<     t = -b - sqrt((b^2 - c))
+---
+>     t = -b - sqrt(BigFloat(b^2 - c))
+461,462c454,455
+< function collisions3d(x, v, r, maxsteps, prec::Integer=64)
+< 	set_bigfloat_precision(prec)
+---
+> function collisions3d(x, v, r, maxsteps, precision::Integer=64)
+> 	set_bigfloat_precision(precision)
+492c485
+< 		first(x, v, r, prec) = collisions(x[1], x[2], v[1], v[2], r, 1, prec)[1][1]
+---
+> 		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
+494,496c487,489
+< 		x1, y1 = first(Pxy(x), v_xy, r, prec) #x, y
+< 		y2, z2 = first(Pyz(x), v_yz, r, prec) #y, z
+< 		x3, z3 = first(Pxz(x), v_xz, r, prec) #x, z
+---
+> 		x1, y1 = first(Pxy(x), v_xy, r) #x, y
+> 		y2, z2 = first(Pyz(x), v_yz, r) #y, z
+> 		x3, z3 = first(Pxz(x), v_xz, r) #x, z
+507,508c500,501
+< 		possible_hit = condition1 || condition2 || condition3
+< 		
+---
+> 		possible_hit = condition1 || condition2 || condition3		
+> 				
+511c504
+< 			if condition1 && !condition2 && !condition3
+---
+> 			if condition1
+513c506
+< 			elseif condition2 && !condition1 && !condition3
+---
+> 			elseif condition2
+515c508
+< 			elseif condition3 && !condition1 && !condition2
+---
+> 			elseif condition3
+517,544d509
+< 			elseif condition1 && condition2 && !condition3
+< 				ball = [x1, y1, z3]
+< 				x_new = collide3d(x, ball, v, r)
+< 				if x_new == false
+< 					ball = [x1, y1, z2]
+< 				end
+< 			elseif condition1 && !condition2 && condition3
+< 				ball = [x1, y1, z3]
+< 				x_new = collide3d(x, ball, v, r)
+< 				if x_new == false
+< 					ball = [x3, y2, z2]
+< 				end
+< 			elseif !condition1 && condition2 && condition3
+< 				ball = [x1, y1, z2]
+< 				x_new = collide3d(x, ball, v, r)
+< 				if x_new == false
+< 					ball = [x3, y2, z2]
+< 				end
+< 			elseif condition1 && condition2 && condition3
+< 				ball = [x1, y1, z3]
+< 				x_new = collide3d(x, ball, v, r)
+< 				if x_new == false
+< 					ball = [x1, y1, z2]
+< 				end
+< 				x_new = collide3d(x, ball, v, r)
+< 				if x_new == false
+< 					ball = [x3, y2, z2]
+< 				end
+559,564c524,528
+< 				t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
+< 				t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
+< 				t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
+< 				t = min(t1, t2, t3)
+< 				x += v*t + v*(0.5)
+< 								
+---
+> 				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
+> 				place_xy = collisions(x[1], x[2], v_xy[1], v_xy[2], r, 1)[2][2]
+> 				place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
+> 				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
+> 				x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) 
+567c531
+< 		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest (!!! nearest - see timeline) point it went and continue from a little further from there
+---
+> 		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest point it went and continue from there
+572,573c536,537
+< 			t = min(t1, t2, t3)
+< 			x += v*t + v*(0.5)
+---
+> 			t = max(t1, t2, t3)
+> 			x += v*t
+575c539
+< 
+---
+> 	#steps += 1
+622c586
+< 		#@show array_v2d
+---
+> 		@show array_v2d
+656c620
+< 		points = unique(coinciding_points)
+---
+> 		@show points = unique(coinciding_points)
+672,673c636,637
+< 		points
+< 		deleteat!(points, extra_points)
+---
+> 		@show points
+> 		@show deleteat!(points, extra_points)
+692c656
+< 		#@show points1
+---
+> 		@show points1
+704c668
+< 			#@show ball
+---
+> 			@show ball
+706c670
+< 			x_new = collide3d(x, ball, v, r)
+---
+> 			@show x_new = collide3d(x, ball, v, r)
+709c673
+< 			if x_new != false
+---
+> 			if @show x_new != false
+712,714c676,678
+< 				push!(places, ball)
+< 				push!(coords, x)
+< 				push!(speeds, v)
+---
+> 				@show push!(places, ball)
+> 				@show push!(coords, x)
+> 				@show push!(speeds, v)
+718,721c682,685
+< 				v_x1x2 = [v[1], v[2]]
+< 				v_x1x2 /= norm(v_x1x2)
+< 				place_x1x2 = collisions(x[1], x[2], v_x1x2[1], v_x1x2[2], r, 1)[2][2]
+< 				t1 = (place_x1x2[1] - x[1])/v_x1x2[1]
+---
+> 				@show v_x1x2 = [v[1], v[2]]
+> 				@show v_x1x2 /= norm(v_x1x2)
+> 				@show place_x1x2 = collisions(x[1], x[2], v_x1x2[1], v_x1x2[2], r, 1)[2][2]
+> 				@show t1 = (place_x1x2[1] - x[1])/v_x1x2[1]
+730c694
+< 				x = newplace + v*(2r + 0.1) 
+---
+> 				@show x = newplace + v*(2r + 0.1) 
+740,741c704,705
+< 			t = findmax(times)[1]
+< 			x += v*t
+---
+> 			@show t = findmax(times)[1]
+> 			@show x += v*t
+745c709
+< 		global_steps += 1	
+---
+> 		@show global_steps += 1	
+752,755d715
+< # End of module
+< end
+< 
+< 

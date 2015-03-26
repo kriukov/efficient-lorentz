@@ -1,5 +1,3 @@
-module EfficientLorentz
-export frac, efficient_algorithm, first_collision, collide, collide3d, v_new, dist_point_line, dist_point_line_sign, collisions, collisions3d, collisionsnd
 
 function frac(alpha, epsilon)
     p = 0; q = 0
@@ -203,7 +201,6 @@ end
 function collide(q, p, x, y, vx, vy, r)
 	r0 = [x, y]
 	v0 = [vx, vy]
-	v0 /= norm(v0)
 	R = [q, p]
 	crossz(x, y) = x[1]*y[2] - x[2]*y[1]
 	discr = norm(v0)^2*r^2 - (crossz(v0, r0-R))^2
@@ -220,12 +217,7 @@ dist_point_line(x, y, k, b) = abs(y - k*x - b)/sqrt(k^2 + 1)
 dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
 #-> Finds the trajectory
-function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
-	
-	set_bigfloat_precision(prec)
-	#x = big(x); y = big(y); vx = big(vx); vy = big(vy); r = big(r)
-	x = BigFloat("$x"); y = BigFloat("$y"); vx = BigFloat("$vx"); vy = BigFloat("$vy"); r = BigFloat("$r");   
-	
+function collisions(x, y, vx, vy, r, maxsteps, precision::Integer=64)
 	# Normalize velocity if it wasn't normalized
 	v = sqrt(vx^2 + vy^2)
 	vx1 = vx/v
@@ -233,8 +225,8 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 	vx = vx1
 	vy = vy1
 	
-	
-	
+	set_bigfloat_precision(precision)
+	x = big(x); y = big(y); vx = big(vx); vy = big(vy)
 	steps = 1
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
@@ -259,7 +251,6 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 		push!(array_corners, [n, m], [n, m+1], [n+1, m], [n+1, m+1])
 		
 		d(i) = dist_point_line(array_corners[i][1], array_corners[i][2], k, b)
-		#dsign(i) = dist_point_line_sign(array_corners[i][1], array_corners[i][2], k, b)
 		
 		j = 0
 		for i = 1:length(array_corners)
@@ -274,7 +265,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 		array_rest_corners = Array{Int, 1}[]
 		for i = 1:4
 			if i != j
-				push!(array_rest_corners, [array_corners[i], !(d(i) < r && dot([vx, vy], array_corners[i] - [x, y]) > 0)]) # The dot() added to prevent counting a backward ball - p. 86 nb. unam1
+				push!(array_rest_corners, [array_corners[i], d(i) >= r])
 			end
 		end
 		
@@ -301,28 +292,27 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 					number = i
 				end				
 			end
-			# wall number: 1 = left, 2 = right, 3 = bottom, 4 = top
-			# corner number: 1 = bottom left, 2 = top left, 3 = bottom right, 4 = top right
+			# number: 1 = left, 2 = right, 3 = bottom, 4 = top
 			if number == 1
-				if k*n + b < m + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0 # Make sure that the time to the wrong ball is also negative
+				if k*n + b < m + 0.5
 					deleteat!(array_rest_corners, 1)
 				else
 					deleteat!(array_rest_corners, 2)
 				end
 			elseif number == 2
-				if k*(n + 1) + b < m + 0.5 && dot([n + 1, m] - [x, y], [vx, vy]) < 0
+				if k*(n + 1) + b < m + 0.5
 					deleteat!(array_rest_corners, 3)
 				else
 					deleteat!(array_rest_corners, 4)
 				end
 			elseif number == 3
-				if (m - b)/k < n + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0
+				if (m - b)/k < n + 0.5
 					deleteat!(array_rest_corners, 1)
 				else
 					deleteat!(array_rest_corners, 3)
 				end
 			elseif number == 4
-				if (m + 1 - b)/k < n + 0.5 && dot([n, m + 1] - [x, y], [vx, vy]) < 0
+				if (m + 1 - b)/k < n + 0.5
 					deleteat!(array_rest_corners, 2)
 				else
 					deleteat!(array_rest_corners, 4)
@@ -441,12 +431,12 @@ end
 
 # to calculate the place where a particle will collide, if the obstacle has center x2, and radius r, and the particle has velocity v and initial position x1
 function collide3d(x1, x2, v, r)
-    b = (dot((x1 - x2), v))/norm(v)^2
-    c = (norm(x1 - x2)^2 - r^2)
-    if (b^2 - c) < (0)   # if there is no collision, return false
+    b = BigFloat(dot((x1 - x2), v))/norm(v)^2
+    c = BigFloat(norm(x1 - x2)^2 - r^2)
+    if BigFloat(b^2 - c) < BigFloat(0)   # if there is no collision, return false
     return false
     end
-    t = -b - sqrt((b^2 - c))
+    t = -b - sqrt(BigFloat(b^2 - c))
     x = v*t + x1
     return x
 end
@@ -461,12 +451,11 @@ function v_new(x1, x2, v)
 	return v
 end
 
-function collisions3d(x, v, r, maxsteps, prec::Integer=64)
-	set_bigfloat_precision(prec)
+function collisions3d(x, v, r, maxsteps, precision::Integer=64)
+	set_bigfloat_precision(precision)
 	
-	x = big(x); v = big(v); r = big(r)
-	#x = [BigFloat("$(x[1])"), BigFloat("$(x[2])"), BigFloat("$(x[3])")]; v = [BigFloat("$(v[1])"), BigFloat("$(v[2])"), BigFloat("$(v[3])")]; r = BigFloat("$r")
-	
+	x = big(x)
+	v = big(v)
 	v = v/norm(v)
 	
 	places = Vector{BigInt}[]
@@ -493,11 +482,11 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 		v_xz = v_xz/norm(v_xz)
 		
 		# First collision in 2D (function first_collision() only works for a special set of initial conditions, that's why collisions() has so much code generalizing it)
-		first(x, v, r, prec) = collisions(x[1], x[2], v[1], v[2], r, 1, prec)[1][1]
+		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
 
-		x1, y1 = first(Pxy(x), v_xy, r, prec) #x, y
-		y2, z2 = first(Pyz(x), v_yz, r, prec) #y, z
-		x3, z3 = first(Pxz(x), v_xz, r, prec) #x, z
+		x1, y1 = first(Pxy(x), v_xy, r) #x, y
+		y2, z2 = first(Pyz(x), v_yz, r) #y, z
+		x3, z3 = first(Pxz(x), v_xz, r) #x, z
 	
 		# Condition that all of them correspond to the same point (x, y, z) of collision
 		# hit = q1 == q3 && p1 == q2 && p2 == p3
@@ -508,44 +497,16 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 		condition3 = z2 == z3
 		
 		# Possible hit
-		possible_hit = condition1 || condition2 || condition3
-		
+		possible_hit = condition1 || condition2 || condition3		
+				
 		if possible_hit
 			# Check if there is a possible collision
-			if condition1 && !condition2 && !condition3
+			if condition1
 				ball = [x1, y1, z3]
-			elseif condition2 && !condition1 && !condition3
+			elseif condition2
 				ball = [x1, y1, z2]
-			elseif condition3 && !condition1 && !condition2
+			elseif condition3
 				ball = [x3, y2, z2]
-			elseif condition1 && condition2 && !condition3
-				ball = [x1, y1, z3]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x1, y1, z2]
-				end
-			elseif condition1 && !condition2 && condition3
-				ball = [x1, y1, z3]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x3, y2, z2]
-				end
-			elseif !condition1 && condition2 && condition3
-				ball = [x1, y1, z2]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x3, y2, z2]
-				end
-			elseif condition1 && condition2 && condition3
-				ball = [x1, y1, z3]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x1, y1, z2]
-				end
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x3, y2, z2]
-				end
 			end
 			
 			x_new = collide3d(x, ball, v, r)
@@ -560,23 +521,22 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 				steps += 1
 			# If x_new returns false, continue moving from the farthest point
 			else
-				t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
-				t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
-				t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
-				t = min(t1, t2, t3)
-				x += v*t + v*(0.5)
-								
+				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
+				place_xy = collisions(x[1], x[2], v_xy[1], v_xy[2], r, 1)[2][2]
+				place_z = x[3] + v[3]/v[2]*(place_xy[2] - x[2])
+				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
+				x = [place_xy[1], place_xy[2], place_z]	+ v*(2r + 0.1) 
 			end
 			
-		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest (!!! nearest - see timeline) point it went and continue from a little further from there
+		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest point it went and continue from there
 		else
 			t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
 			t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
 			t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
-			t = min(t1, t2, t3)
-			x += v*t + v*(0.5)
+			t = max(t1, t2, t3)
+			x += v*t
 		end	
-
+	#steps += 1
 	end
 	return places, coords, speeds
 end
@@ -623,7 +583,7 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 			end
 		end
 		
-		#@show array_v2d
+		@show array_v2d
 		
 		# Compare and collect coinciding circle coordinates between each two elements
 		NC = N*(N-1)/2
@@ -657,7 +617,7 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 		end
 		
 		# Clean up dupes
-		points = unique(coinciding_points)
+		@show points = unique(coinciding_points)
 		
 		# It may happen that there is more than 1 coinciding point for a given dimension, and length(points) > N. We have to take one which is the closest to the original point
 		extra_points = Int[]
@@ -673,8 +633,8 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 				end
 			end		
 		end
-		points
-		deleteat!(points, extra_points)
+		@show points
+		@show deleteat!(points, extra_points)
 		# Sort points according to dimension
 
 		#=
@@ -693,7 +653,7 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 			end
 			
 		end
-		#@show points1
+		@show points1
 		=#
 		
 		
@@ -705,24 +665,24 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 			for i = 1:length(points)
 				push!(ball, points[i][1])
 			end
-			#@show ball
+			@show ball
 			
-			x_new = collide3d(x, ball, v, r)
+			@show x_new = collide3d(x, ball, v, r)
 			
 			# If x_new does not output false, there is definitely a collision
-			if x_new != false
+			if @show x_new != false
 				v = v_new(x_new, ball, v)
 				x = x_new
-				push!(places, ball)
-				push!(coords, x)
-				push!(speeds, v)
+				@show push!(places, ball)
+				@show push!(coords, x)
+				@show push!(speeds, v)
 				steps += 1
 			else
 				# Find the coordinates where the straight line ends on one 2d circle, let's say xy, and continue from a little further from there
-				v_x1x2 = [v[1], v[2]]
-				v_x1x2 /= norm(v_x1x2)
-				place_x1x2 = collisions(x[1], x[2], v_x1x2[1], v_x1x2[2], r, 1)[2][2]
-				t1 = (place_x1x2[1] - x[1])/v_x1x2[1]
+				@show v_x1x2 = [v[1], v[2]]
+				@show v_x1x2 /= norm(v_x1x2)
+				@show place_x1x2 = collisions(x[1], x[2], v_x1x2[1], v_x1x2[2], r, 1)[2][2]
+				@show t1 = (place_x1x2[1] - x[1])/v_x1x2[1]
 				
 				newplace = BigFloat[]
 				push!(newplace, place_x1x2[1], place_x1x2[2])
@@ -731,7 +691,7 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 				end
 				
 				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
-				x = newplace + v*(2r + 0.1) 
+				@show x = newplace + v*(2r + 0.1) 
 			end
 			
 		# And if array points is empty, i.e., no coinciding points, we take the farthest point it went and continue from there
@@ -741,19 +701,15 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 			for i = 1:N
 				push!(times, sqrt((array_v2d[i][1] - x[array_v2d[[3]]])^2 + (array_v2d[i][2] - x[array_v2d[4]])^2)/norm([v[array_v2d[3]], v[array_v2d[4]]]))		
 			end
-			t = findmax(times)[1]
-			x += v*t
+			@show t = findmax(times)[1]
+			@show x += v*t
 		
 		end
 
-		global_steps += 1	
+		@show global_steps += 1	
 		
 		
 	end
 	
 end
-
-# End of module
-end
-
 
