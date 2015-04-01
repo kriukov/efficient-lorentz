@@ -1,5 +1,5 @@
 module ClassicalLorentz
-export crossz, crossing, crossing3d, collisions_classical, first_collision_classical, collisions3d_classical
+export crossz, crossing, crossing3d, collisions_classical, first_collision_classical, collisions3d_classical, first_collision3d_classical
 
 # Perpendicular (z-) component of cross product (scalar quantity) for 2-D vectors: (x cross y) dot e_z
 #set_bigfloat_precision(1024)
@@ -310,6 +310,51 @@ end
 
 
 
+
+function first_collision3d_classical(x0, v0, r, precision::Integer=64)
+
+	set_bigfloat_precision(precision)
+	x0 = big(x0); v0 = big(v0); r = big(r)
+	#x0 = [BigFloat("$(x0[1])"), BigFloat("$(x0[2])"), BigFloat("$(x0[3])")]; v0 = [BigFloat("$(v0[1])"), BigFloat("$(v0[2])"), BigFloat("$(v0[3])")]; r = BigFloat("$r")
+	# Normalize speed
+	v0 /= norm(v0)
+
+	# Initial square (n, m)
+	n = ifloor(x0[1] + 0.5)
+	m = ifloor(x0[2] + 0.5)
+	l = ifloor(x0[3] + 0.5)
+	
+	# Place the first initial position into cube [-0.5, 0.5)^3
+	x0 -= [n, m, l]
+	
+	if norm(x0) < r
+		error("The initial position cannot be inside an obstacle")
+	end
+
+	t = 0
+
+	# Will hit or miss? Check the condition for hitting - derivation pp. 83-84
+	#xcrossv = norm(cross(v0, x0))
+	#vr = norm(v0)*r
+	#discr = vr^2 - xcrossv^2
+	#if xcrossv < vr && (-dot(v0, x0) - sqrt(discr)) > 0
+	while norm(cross(v0, x0)) > norm(v0)*r
+
+		v1 = v0
+		x1 = x0
+		
+		# Now hit the wall
+		x0, d, n, m, l = crossing3d(x1, v1, n, m, l)
+					
+		# The speed direction will stay the same
+		v0 = v1
+		
+		# The time will increment
+		t += d/norm(v0)
+	end
+	
+	return (n, m, l)
+end
 
 
 # End of module
