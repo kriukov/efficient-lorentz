@@ -1,12 +1,12 @@
-#using EfficientLorentz
-using ClassicalLorentz
+using EfficientLorentz
+#using ClassicalLorentz
 
 #x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]
 x = [0.532282, 0.531928, 0.267589]; v = [cos(1)*sin(0.8), sin(1)*sin(0.8), cos(0.8)]
 
 time_vs_r = Array{Real, 1}[]
 
-#=
+@elapsed collisions3d(x, v, 0.11, 1, 64)
 for n = 1:7
 	r0 = 1/10^n
 	for i = 0:9
@@ -17,8 +17,9 @@ for n = 1:7
 	end
 	time_vs_r
 end
-=#
 
+
+#=
 @elapsed first_collision3d_classical(x, v, 0.11, 64)
 for n = 1:7
 	r0 = 1/10^n
@@ -30,3 +31,4 @@ for n = 1:7
 	end
 	time_vs_r
 end
+=#
