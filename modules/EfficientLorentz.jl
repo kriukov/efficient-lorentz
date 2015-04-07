@@ -473,6 +473,8 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
 
+	approx(x, y) = abs(x - y) < 0.3
+
 	steps = 1
 	
 	while steps <= maxsteps
@@ -511,42 +513,30 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 		possible_hit = condition1 || condition2 || condition3
 		
 		if possible_hit
-			# Check if there is a possible collision
-			if condition1 && !condition2 && !condition3
-				ball = [x1, y1, z3]
-			elseif condition2 && !condition1 && !condition3
-				ball = [x1, y1, z2]
-			elseif condition3 && !condition1 && !condition2
-				ball = [x3, y2, z2]
-			elseif condition1 && condition2 && !condition3
-				ball = [x1, y1, z3]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x1, y1, z2]
-				end
-			elseif condition1 && !condition2 && condition3
-				ball = [x1, y1, z3]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x3, y2, z2]
-				end
-			elseif !condition1 && condition2 && condition3
-				ball = [x1, y1, z2]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x3, y2, z2]
-				end
-			elseif condition1 && condition2 && condition3
-				ball = [x1, y1, z3]
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x1, y1, z2]
-				end
-				x_new = collide3d(x, ball, v, r)
-				if x_new == false
-					ball = [x3, y2, z2]
-				end
+			
+			t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
+			t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
+			t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
+			
+			while !(approx(t1, t2) && approx(t2, t3) && approx(t1, t3))
+				t = min(t1, t2, t3)
+				x += v*t + v*(0.1)
+				
+				if t == t1
+					x1, y1 = first(Pxy(x), [v[1], v[2]]/norm([v[1], v[2]]), r, prec) #x, y
+				elseif t == t2
+					y2, z2 = first(Pyz(x), [v[2], v[3]]/norm([v[2], v[3]]), r, prec) #y, z
+				elseif t == t3
+					x3, z3 = first(Pxz(x), [v[1], v[3]]/norm([v[1], v[3]]), r, prec) #x, z
+				end				
+				
+				t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
+				t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
+				t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
 			end
+		
+			
+			ball = [x1, y1, z2]
 			
 			x_new = collide3d(x, ball, v, r)
 		

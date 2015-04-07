@@ -673,3 +673,20 @@ r = 0.1
 ##################
 
 Something happens in E at r = 0.0003. Let's see.
+
+
+###############
+###############
+
+Testing Sanders' idea with times:
+
+Comparing with classical:
+x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.1
+include("tests-collisions3d.jl")
+compare_lorentz3d(x, v, r, 1000, 1024): Diverged at element 23
+
+Old version: 1024 - Diverged at element 33
+
+
+
+

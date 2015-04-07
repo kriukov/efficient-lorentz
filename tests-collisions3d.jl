@@ -34,8 +34,10 @@ function compare_lorentz3d(x, v, r, t, precision)
 	div_place
 end
 
-x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.2
-compare_lorentz3d(x, v, r, 100, 64)
+#=
+x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.1
+compare_lorentz3d(x, v, r, 1000, 1024)
+=#
 
 #=
 diverging_points = Array{BigFloat, 1}[]
