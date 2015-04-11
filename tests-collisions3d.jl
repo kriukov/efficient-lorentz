@@ -10,7 +10,7 @@ function compare_lorentz3d(x, v, r, t, precision)
 	speeds_classical = classical[3]
 	l = length(places_classical)
 	
-	efficient = collisions3d(x, v, r, l, precision)
+	efficient = collisions3d_time(x, v, r, l, precision)
 	elements_efficient = efficient[1]
 	places_efficient = efficient[2]
 	speeds_efficient = efficient[3]

@@ -6,12 +6,12 @@ x = [0.532282, 0.531928, 0.267589]; v = [cos(1)*sin(0.8), sin(1)*sin(0.8), cos(0
 
 time_vs_r = Array{Real, 1}[]
 
-@elapsed collisions3d(x, v, 0.11, 1, 64)
+@elapsed collisions3d_time(x, v, 0.11, 1, 64)
 for n = 1:7
 	r0 = 1/10^n
 	for i = 0:9
 		r = r0 - i/10^(n+1)
-		time_E = (@elapsed collisions3d(x, v, r, 1, 64))
+		time_E = (@elapsed collisions3d_time(x, v, r, 1, 64))
 		println(r, " ", time_E)
 		push!(time_vs_r, [r, time_E])
 	end

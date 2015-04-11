@@ -1,5 +1,5 @@
 module EfficientLorentz
-export frac, efficient_algorithm, first_collision, collide, collide3d, v_new, dist_point_line, dist_point_line_sign, collisions, collisions3d, collisionsnd
+export frac, efficient_algorithm, first_collision, collide, collide3d, v_new, dist_point_line, dist_point_line_sign, collisions, collisions3d, collisions3d_time, collisionsnd
 
 function frac(alpha, epsilon)
     p = 0; q = 0
@@ -435,9 +435,8 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 end
 
 
+
 ## 3D version
-
-
 
 # to calculate the place where a particle will collide, if the obstacle has center x2, and radius r, and the particle has velocity v and initial position x1
 function collide3d(x1, x2, v, r)
@@ -461,6 +460,8 @@ function v_new(x1, x2, v)
 	return v
 end
 
+
+# Calculates collisions based on comparing output of 2D first_collision
 function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 	set_bigfloat_precision(prec)
 	
@@ -472,8 +473,6 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
-
-	approx(x, y) = abs(x - y) < 0.3
 
 	steps = 1
 	
@@ -513,30 +512,42 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 		possible_hit = condition1 || condition2 || condition3
 		
 		if possible_hit
-			
-			t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
-			t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
-			t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
-			
-			while !(approx(t1, t2) && approx(t2, t3) && approx(t1, t3))
-				t = min(t1, t2, t3)
-				x += v*t + v*(0.1)
-				
-				if t == t1
-					x1, y1 = first(Pxy(x), [v[1], v[2]]/norm([v[1], v[2]]), r, prec) #x, y
-				elseif t == t2
-					y2, z2 = first(Pyz(x), [v[2], v[3]]/norm([v[2], v[3]]), r, prec) #y, z
-				elseif t == t3
-					x3, z3 = first(Pxz(x), [v[1], v[3]]/norm([v[1], v[3]]), r, prec) #x, z
-				end				
-				
-				t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
-				t2 = sqrt((y2 - x[2])^2 + (z2 - x[3])^2)/norm([v[2], v[3]])
-				t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
+			# Check if there is a possible collision
+			if condition1 && !condition2 && !condition3
+				ball = [x1, y1, z3]
+			elseif condition2 && !condition1 && !condition3
+				ball = [x1, y1, z2]
+			elseif condition3 && !condition1 && !condition2
+				ball = [x3, y2, z2]
+			elseif condition1 && condition2 && !condition3
+				ball = [x1, y1, z3]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x1, y1, z2]
+				end
+			elseif condition1 && !condition2 && condition3
+				ball = [x1, y1, z3]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x3, y2, z2]
+				end
+			elseif !condition1 && condition2 && condition3
+				ball = [x1, y1, z2]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x3, y2, z2]
+				end
+			elseif condition1 && condition2 && condition3
+				ball = [x1, y1, z3]
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x1, y1, z2]
+				end
+				x_new = collide3d(x, ball, v, r)
+				if x_new == false
+					ball = [x3, y2, z2]
+				end
 			end
-		
-			
-			ball = [x1, y1, z2]
 			
 			x_new = collide3d(x, ball, v, r)
 		
@@ -570,6 +581,85 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 	end
 	return places, coords, speeds
 end
+
+
+# Calculates collisions based on time
+function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
+	set_bigfloat_precision(prec)
+	
+	x = big(x); v = big(v); r = big(r)
+	#x = [BigFloat("$(x[1])"), BigFloat("$(x[2])"), BigFloat("$(x[3])")]; v = [BigFloat("$(v[1])"), BigFloat("$(v[2])"), BigFloat("$(v[3])")]; r = BigFloat("$r")
+	
+	v /= norm(v)
+	
+	places = Vector{BigInt}[]
+	coords = Vector{BigFloat}[]
+	speeds = Vector{BigFloat}[]
+
+	approx_equal(x, y) = abs(x - y) < 0.3
+
+	steps = 1
+	
+	first(x, v, d1, d2, r, prec) = collisions(x[d1], x[d2], v[d1], v[d2], r, 1, prec)[1][1]
+	time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/norm([v[d1], v[d2]])
+	#time_to_circle(x, v, coord1, coord2, d1, d2) = ((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(coord1 - x[d1])^2
+	
+	while steps <= maxsteps
+
+		x1, y1 = first(x, v, 1, 2, r, prec)
+		y2, z2 = first(x, v, 2, 3, r, prec)
+		x3, z3 = first(x, v, 1, 3, r, prec)
+
+		t1 = time_to_circle(x, v, x1, y1, 1, 2)
+		t2 = time_to_circle(x, v, y2, z2, 2, 3)
+		t3 = time_to_circle(x, v, x3, z3, 1, 3)
+		
+		#int_steps = 0
+		while !(approx_equal(t1, t2) && approx_equal(t2, t3) && approx_equal(t1, t3))
+			t = min(t1, t2, t3)
+			x += v*t + v*(0.1)
+			
+			if t == t1
+				x1, y1 = first(x, v, 1, 2, r, prec) #x, y
+			elseif t == t2
+				y2, z2 = first(x, v, 2, 3, r, prec) #y, z
+			elseif t == t3
+				x3, z3 = first(x, v, 1, 3, r, prec) #x, z
+			end				
+			
+			t1 = time_to_circle(x, v, x1, y1, 1, 2)
+			t2 = time_to_circle(x, v, y2, z2, 2, 3)
+			t3 = time_to_circle(x, v, x3, z3, 1, 3)
+			#@show int_steps += 1
+		end
+			
+		ball = [x1, y1, z2]
+		
+		x_new = collide3d(x, ball, v, r)
+	
+		if x_new != false
+			# Definitely a collision
+			v = v_new(x_new, ball, v)
+			x = x_new
+			push!(places, ball)
+			push!(coords, x)
+			push!(speeds, v)
+			steps += 1
+		# If x_new returns false, continue moving from the farthest point
+		else
+			t1 = time_to_circle(x, v, x1, y1, 1, 2)
+			t2 = time_to_circle(x, v, y2, z2, 2, 3)
+			t3 = time_to_circle(x, v, x3, z3, 1, 3)
+			t = min(t1, t2, t3)
+			x += v*t + v*(0.5)
+							
+		end
+		
+
+	end
+	return places, coords, speeds
+end
+
 
 
 
