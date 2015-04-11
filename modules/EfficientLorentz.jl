@@ -608,28 +608,29 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 
 		x1, y1 = first(x, v, 1, 2, r, prec)
 		y2, z2 = first(x, v, 2, 3, r, prec)
-		x3, z3 = first(x, v, 1, 3, r, prec)
+		#x3, z3 = first(x, v, 1, 3, r, prec)
 
 		t1 = time_to_circle(x, v, x1, y1, 1, 2)
 		t2 = time_to_circle(x, v, y2, z2, 2, 3)
-		t3 = time_to_circle(x, v, x3, z3, 1, 3)
+		#t3 = time_to_circle(x, v, x3, z3, 1, 3)
 		
 		#int_steps = 0
-		while !(approx_equal(t1, t2) && approx_equal(t2, t3) && approx_equal(t1, t3))
-			t = min(t1, t2, t3)
+		while !(approx_equal(t1, t2))# && approx_equal(t2, t3) && approx_equal(t1, t3))
+			#t = min(t1, t2, t3)
+			t = min(t1, t2)
 			x += v*t + v*(0.1)
 			
 			if t == t1
 				x1, y1 = first(x, v, 1, 2, r, prec) #x, y
 			elseif t == t2
 				y2, z2 = first(x, v, 2, 3, r, prec) #y, z
-			elseif t == t3
-				x3, z3 = first(x, v, 1, 3, r, prec) #x, z
+			#elseif t == t3
+				#x3, z3 = first(x, v, 1, 3, r, prec) #x, z
 			end				
 			
 			t1 = time_to_circle(x, v, x1, y1, 1, 2)
 			t2 = time_to_circle(x, v, y2, z2, 2, 3)
-			t3 = time_to_circle(x, v, x3, z3, 1, 3)
+			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
 			#@show int_steps += 1
 		end
 			
@@ -649,8 +650,8 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 		else
 			t1 = time_to_circle(x, v, x1, y1, 1, 2)
 			t2 = time_to_circle(x, v, y2, z2, 2, 3)
-			t3 = time_to_circle(x, v, x3, z3, 1, 3)
-			t = min(t1, t2, t3)
+			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
+			t = min(t1, t2)#, t3)
 			x += v*t + v*(0.5)
 							
 		end
