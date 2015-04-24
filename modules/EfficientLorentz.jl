@@ -1,6 +1,7 @@
 module EfficientLorentz
 export frac, efficient_algorithm, first_collision, collide, collide3d, v_new, dist_point_line, dist_point_line_sign, collisions, collisions3d, collisions3d_time, collisionsnd
 
+#=
 function frac(alpha, epsilon)
     p = 0; q = 0
     h1 = 0
@@ -25,6 +26,34 @@ function frac(alpha, epsilon)
     end
     q, p
 end 
+=#
+
+#= New frac() -- ERROR: `rationalize` has no method matching rationalize(::BigFloat)
+function frac(alpha, epsilon) 
+    x = rationalize(alpha, tol = epsilon)
+    return den(x), num(x)
+end
+=#
+
+# Another frac()
+function frac(x, epsilon) 
+
+    h1, h2 = 1, 0
+    k1, k2 = 0, 1
+    b = x
+    
+    while abs(k1*x - h1) > epsilon
+
+        a = ifloor(b)
+
+        h1, h2 = a*h1 + h2, h1
+        k1, k2 = a*k1 + k2, k1
+        
+        b = 1/(b - a)
+    end
+    
+    return k1, h1
+end
 
 function efficient_algorithm(m, b, epsilon)
 	kn = 0
