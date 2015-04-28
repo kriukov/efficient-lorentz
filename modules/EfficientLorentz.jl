@@ -625,42 +625,56 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
 
-	approx_equal(x, y) = abs(x - y) < 0.3
+	approx_equal(x, y) = abs(x - y) < 0.4 # Was 0.3; setting it to 0.2 leads to errors for r = 0.1; set 0.4 for new time_to_circle to work
 
 	steps = 1
 	
 	first(x, v, d1, d2, r, prec) = collisions(x[d1], x[d2], v[d1], v[d2], r, 1, prec)[1][1]
-	time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/norm([v[d1], v[d2]])
-	#time_to_circle(x, v, coord1, coord2, d1, d2) = ((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(coord1 - x[d1])^2
+	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/norm([v[d1], v[d2]])
+	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt(((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(v[d1]^2 + v[d2]^2))
+	#time_to_circle(x, v, coord1, coord2, d1, d2) = min(abs((coord1 - x[d1])/v[d1]), abs((coord2 - x[d2])/v[d2]))
+	
+	# Efficient function time_to_circle without sqrt
+	function time_to_circle(x, v, coord1, coord2, d1, d2)
+	    p = (coord1 - x[d1])*v[d2] - (coord2 - x[d2])*v[d1]
+	    tx = abs((coord1 - x[d1])/v[d1])
+	    ty = abs((coord2 - x[d2])/v[d2])
+	    if (sign(v[d1]*v[d2]) == 1 && abs(v[d1]) > abs(v[d2])) || (sign(v[d1]*v[d2]) == -1 && abs(v[d1]) < abs(v[d2]))
+	        if p > 0
+	            return max(tx, ty)
+	        else
+	            return min(tx, ty)
+	        end
+	    elseif (sign(v[d1]*v[d2]) == 1 && abs(v[d1]) < abs(v[d2])) || (sign(v[d1]*v[d2]) == -1 && abs(v[d1]) > abs(v[d2]))
+	        if p > 0
+	            return min(tx, ty)
+	        else
+	            return max(tx, ty)
+	        end
+	    end	
+	end
+	
 	
 	while steps <= maxsteps
 
 		x1, y1 = first(x, v, 1, 2, r, prec)
 		y2, z2 = first(x, v, 2, 3, r, prec)
-		#x3, z3 = first(x, v, 1, 3, r, prec)
 
 		t1 = time_to_circle(x, v, x1, y1, 1, 2)
 		t2 = time_to_circle(x, v, y2, z2, 2, 3)
-		#t3 = time_to_circle(x, v, x3, z3, 1, 3)
-		
-		#int_steps = 0
-		while !(approx_equal(t1, t2))# && approx_equal(t2, t3) && approx_equal(t1, t3))
-			#t = min(t1, t2, t3)
+        
+		while !approx_equal(t1, t2)
 			t = min(t1, t2)
-			x += v*t + v*(0.1)
+			x += v*t + v*0.01
 			
 			if t == t1
 				x1, y1 = first(x, v, 1, 2, r, prec) #x, y
 			elseif t == t2
 				y2, z2 = first(x, v, 2, 3, r, prec) #y, z
-			#elseif t == t3
-				#x3, z3 = first(x, v, 1, 3, r, prec) #x, z
 			end				
 			
-			t1 = time_to_circle(x, v, x1, y1, 1, 2)
+		    t1 = time_to_circle(x, v, x1, y1, 1, 2)
 			t2 = time_to_circle(x, v, y2, z2, 2, 3)
-			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
-			#@show int_steps += 1
 		end
 			
 		ball = [x1, y1, z2]
@@ -677,11 +691,10 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 			steps += 1
 		# If x_new returns false, continue moving from the farthest point
 		else
-			t1 = time_to_circle(x, v, x1, y1, 1, 2)
-			t2 = time_to_circle(x, v, y2, z2, 2, 3)
-			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
-			t = min(t1, t2)#, t3)
-			x += v*t + v*(0.5)
+			#t1 = time_to_circle(x, v, x1, y1, 1, 2)
+			#t2 = time_to_circle(x, v, y2, z2, 2, 3)
+			t = min(t1, t2)
+			x += v*t + v*0.01
 							
 		end
 		
@@ -693,7 +706,7 @@ end
 
 
 
-## ND version
+## ND version - still incomplete
 
 function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 	set_bigfloat_precision(precision)

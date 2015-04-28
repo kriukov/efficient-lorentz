@@ -49,7 +49,7 @@ for n = 1:7
 end
 =#
 
-# Trying out different velocities, at least in the first octant
+#= Trying out different velocities, at least in the first octant
 time_to_1st = Array{Real, 1}[]
 
 for phi1 = 1:9
@@ -72,4 +72,21 @@ for n = 1:4
 end
 
 end
+end
+=#
+
+# Measuring free flight time until the first collision in 2D
+x = [0.01, 0.445]
+phi = (1 + sqrt(5))/2
+time_to_1st = Array{Real, 1}[]
+for n = 1:8
+	r0 = 1/10^n
+	for i = 1:9
+		r = r0 - i/10^(n+1)
+		first_place = collisions(x[1], x[2], cos(phi), sin(phi), r, 1, 256)[1][1]
+		dist_to_1st = norm(first_place - x)
+		println(r, " ", dist_to_1st)
+		push!(time_to_1st, [r, dist_to_1st])
+	end
+	time_to_1st
 end

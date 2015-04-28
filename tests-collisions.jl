@@ -36,7 +36,7 @@ function compare_lorentz2d(x, v, r, t, prec)
 	div_place, div_element
 end
 
-#=
+
 set_bigfloat_precision(512)
 diverging_points = Array{BigFloat, 1}[]
 for times = 0:1000
@@ -48,4 +48,4 @@ for times = 0:1000
 	push!(diverging_points, [deg, norm(compare[1]), compare[2]])
 end
 println(diverging_points)
-=#
+
