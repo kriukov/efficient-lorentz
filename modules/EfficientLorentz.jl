@@ -467,14 +467,23 @@ end
 
 ## 3D version
 
+# Squared norm (no necessity of sqrt) - tried to implement in collide3d but algorithm hangs; writing explicitly - same result
+function norm2(x)
+    s = 0
+    for i = 1:length(x)
+        s += x[i]^2
+    end
+    s
+end
+
 # to calculate the place where a particle will collide, if the obstacle has center x2, and radius r, and the particle has velocity v and initial position x1
 function collide3d(x1, x2, v, r)
-    b = (dot((x1 - x2), v))/norm(v)^2
-    c = (norm(x1 - x2)^2 - r^2)
-    if (b^2 - c) < (0)   # if there is no collision, return false
-    return false
+    b = dot(x1 - x2, v)/norm(v)^2
+    c = norm(x1 - x2)^2 - r^2
+    if b^2 - c < 0   # if there is no collision, return false
+        return false
     end
-    t = -b - sqrt((b^2 - c))
+    t = -b - sqrt(b^2 - c)
     x = v*t + x1
     return x
 end
@@ -482,10 +491,10 @@ end
 # And, to calculate the velocity after the collision at the point x1, and x2 is the center of the sphere
 function v_new(x1, x2, v)
 	n = x1 - x2
-	n = n/norm(n)
+	n /= norm(n)
 	vn = dot(n, v)*n
-	v = v - 2vn
-	v = v/norm(v)
+	v -= 2vn
+	v /= norm(v)
 	return v
 end
 
@@ -634,7 +643,7 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt(((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(v[d1]^2 + v[d2]^2))
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = min(abs((coord1 - x[d1])/v[d1]), abs((coord2 - x[d2])/v[d2]))
 	
-	# Efficient function time_to_circle without sqrt
+	# Supposedly efficient function time_to_circle without sqrt
 	function time_to_circle(x, v, coord1, coord2, d1, d2)
 	    p = (coord1 - x[d1])*v[d2] - (coord2 - x[d2])*v[d1]
 	    tx = abs((coord1 - x[d1])/v[d1])
