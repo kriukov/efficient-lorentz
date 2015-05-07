@@ -8979,7 +8979,7 @@ KEvLlseeLWckY8efO5Bs3gKSl/q647kEJQKX/B+bPOVW\
 \>"]]
 }, Open  ]]
 },
-WindowSize->{1366, 723},
+WindowSize->{1358, 716},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
 FrontEndVersion->"7.0 for Linux x86 (32-bit) (November 10, 2008)",
 StyleDefinitions->"Default.nb"
@@ -9018,7 +9018,7 @@ Cell[229793, 6218, 849, 19, 55, "Input"],
 Cell[230645, 6239, 38217, 700, 358, 30823, 577, "CachedBoxData", "BoxData", \
 "Output"]
 }, Open  ]],
-Cell[268877, 6942, 21572, 621, 2607, "Input"],
+Cell[268877, 6942, 21572, 621, 2629, "Input"],
 Cell[CellGroupData[{
 Cell[290474, 7567, 796, 18, 55, "Input"],
 Cell[291273, 7587, 28846, 551, 399, "Output"]

@@ -27,7 +27,7 @@ function freeflight2d(x, v)
     time_to_1st
 end
 
-# Code to average points over velocities with angles 1..44, 46..89
+#= Code to average points over velocities with angles 1..44, 46..89
 x = [0.01, 0.445]
 freeflight2d_deg = Array{Array{Real, 1}, 1}[]
 for deg = 1:89
@@ -48,7 +48,7 @@ for j = 1:60
     push!(averaged_points, point)
 end
 println(averaged_points)
-
+=#
 
 ## 3D
 
