@@ -50,6 +50,34 @@ end
 println(averaged_points)
 =#
 
+# Fix the velocity and randomize initial position, then choose the maximum free flight of all
+v = [sqrt(1/3), sqrt(2/3)] # Slope of velocity = sqrt(2)
+k = 1 - 0.2/sqrt(2); b = 0.1/sqrt(2)
+
+function freeflight2d_randomxmax(v)
+    time_to_1st = Array{Real, 1}[]
+    for n = 1:8
+	    r0 = 1/10^n
+	    for i = 1:9
+		    r = r0 - i/10^(n+1)
+	        # For this given radius, find free flight for random x (in reduced 0-1 square) and take the maximum
+	        freeflights = Real[]
+	        for i = 1:1e6
+	            x = [k*rand() + b, k*rand() + b]
+		        first_place = collisions(x[1], x[2], v[1], v[2], r, 1, 256)[1][1]
+		        dist_to_1st = norm(first_place - x)
+		        push!(freeflights, dist_to_1st)
+		    end
+		    max_dist_to_1st = findmax(freeflights)[1]
+		    push!(time_to_1st, [r, max_dist_to_1st])
+	    end
+	end
+    time_to_1st
+end
+
+data = freeflight2d_randomxmax(v)
+println(data)
+
 ## 3D
 
 #= Measuring free flight time until the first collision (basically distance between x0 and first place of collision)
