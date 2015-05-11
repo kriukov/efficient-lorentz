@@ -25,33 +25,33 @@ function frac(alpha, epsilon)
         mm1 = mm2
     end
     q, p
-end 
+end
 =#
 
 #= New frac() -- ERROR: `rationalize` has no method matching rationalize(::BigFloat)
-function frac(alpha, epsilon) 
+function frac(alpha, epsilon)
     x = rationalize(alpha, tol = epsilon)
     return den(x), num(x)
 end
 =#
 
 # Another frac()
-function frac(x, epsilon) 
+function frac(x, epsilon)
 
     h1, h2 = 1, 0
     k1, k2 = 0, 1
     b = x
-    
+
     while abs(k1*x - h1) > epsilon
 
         a = ifloor(b)
 
         h1, h2 = a*h1 + h2, h1
         k1, k2 = a*k1 + k2, k1
-        
+
         b = 1/(b - a)
     end
-    
+
     return k1, h1
 end
 
@@ -76,7 +76,7 @@ function efficient_algorithm(m, b, epsilon)
 	#println("cycle ended")
 	q = kn
 	p = ifloor(m*q) + 1
-	return (q, p)	
+	return (q, p)
 	#return i
 end
 
@@ -89,12 +89,12 @@ function first_collision(x, y, vx, vy, delta)
 	vy1 = vy/v
 	vx = vx1
 	vy = vy1
-		
+
 	m = vy/vx
 	b = y - m*x
-	
+
 	if b > delta && 1 - b > delta
-	
+
 		if vx > 0 && vy > 0
 			(q, p) = efficient_algorithm(m, b, delta)
 			p = ifloor(m*q) + 1
@@ -118,11 +118,11 @@ function first_collision(x, y, vx, vy, delta)
 			#m = -m # this line should not be here
 			p = -ifloor(m*q) #p = -(ifloor(m*q) + 1)
 		end
-		
+
 	# Added code for cases when b or 1-b < delta
 	# The problem with efficient_algorithm() is that whenever b<delta or 1-b<delta, it always outputs (0, 1) - see plot b_or_1-b_lt_delta.png: even though the speed is negative in both directions (starting point is (0, b)) and the first collision is (-2, -2), the algorithm outputs (0, 1), which is in the other direction.
 	# We have to make special cases to fix it
-	
+
 	elseif b <= delta
 		# Four situations possible: leaves through top, leaves through right/left, hits (1, 1)/(-1, 1), hits (0, 1)
 		r = abs(delta*vx)
@@ -130,7 +130,7 @@ function first_collision(x, y, vx, vy, delta)
 		m1 = (b - 1 + r*sqrt(2 + b*(b - 2) - r^2))/(r^2 - 1)
 		m2 = (r - (b - 1)*sqrt(2 + b*(b - 2) - r^2))/((b - 1)*r + sqrt(2 + b*(b - 2) - r^2))
 		m3 = sqrt(((b - 1)/r)^2 - 1)
-		
+
 		# Leaves through top
 		if abs(m) < m3 && abs(m) > m2
 			if vx > 0 && vy > 0
@@ -166,23 +166,23 @@ function first_collision(x, y, vx, vy, delta)
 			elseif vy < 0
 				q = 0
 				p = 0
-			end		
+			end
 		end
-		
+
 	elseif 1 - b <= delta
-		
+
 		# It is just transformation y -> 1 - y, vy -> -vy and the previous situation applies
-		
+
 		m = -m
 		b = 1 - b
 		vy = -vy
-		
+
 		r = abs(delta*vx)
 		# Three critical values of m, ascending
 		m1 = (b - 1 + r*sqrt(2 + b*(b - 2) - r^2))/(r^2 - 1)
 		m2 = (r - (b - 1)*sqrt(2 + b*(b - 2) - r^2))/((b - 1)*r + sqrt(2 + b*(b - 2) - r^2))
 		m3 = sqrt(((b - 1)/r)^2 - 1)
-		
+
 		# Leaves through top
 		if abs(m) < m3 && abs(m) > m2
 			if vx > 0 && vy > 0
@@ -218,12 +218,12 @@ function first_collision(x, y, vx, vy, delta)
 			elseif vy < 0
 				q = 0
 				p = 0
-			end		
-		end		
-		
+			end
+		end
+
 		p = 1 - p
-		
-	end	
+
+	end
 	return q, p
 end
 
@@ -238,7 +238,7 @@ function collide(q, p, x, y, vx, vy, r)
 	discr = norm(v0)^2*r^2 - (crossz(v0, r0-R))^2
 	t1 = (-dot(v0, r0-R) - sqrt(discr))/norm(v0)^2
 	N0 = r0 + v0*t1 - R
-	N = N0/norm(N0)			
+	N = N0/norm(N0)
 	v1 = v0 - 2*dot(v0, N)*N
 	r1 = r0 + v0*t1
 	return r1[1], r1[2], v1[1], v1[2]
@@ -250,54 +250,54 @@ dist_point_line_sign(x, y, k, b) = (y - k*x - b)/sqrt(k^2 + 1)
 
 #-> Finds the trajectory
 function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
-	
+
 	set_bigfloat_precision(prec)
 	#x = big(x); y = big(y); vx = big(vx); vy = big(vy); r = big(r)
-	x = BigFloat("$x"); y = BigFloat("$y"); vx = BigFloat("$vx"); vy = BigFloat("$vy"); r = BigFloat("$r");   
-	
+	x = BigFloat("$x"); y = BigFloat("$y"); vx = BigFloat("$vx"); vy = BigFloat("$vy"); r = BigFloat("$r");
+
 	# Normalize velocity if it wasn't normalized
 	v = sqrt(vx^2 + vy^2)
 	vx1 = vx/v
 	vy1 = vy/v
 	vx = vx1
 	vy = vy1
-	
-	
-	
+
+
+
 	steps = 1
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
 	# Push a dummy place to "places" - it cannot be empty for array_corners; also, it can't be near [x, y] and it can't be NaN or Inf
 	push!(places, [-10^9, -10^9])
-	
+
 	push!(coords, [x, y])
 	push!(speeds, [vx, vy])
-	
+
 	while steps <= maxsteps
-	
+
 		# Will the particle exit the square?
 		n = ifloor(x)
 		m = ifloor(y)
 		k = vy/vx
 		b = - k*x + y
-		
+
 		# If exits, not counting the obstacle that has just experienced collision (of course distance to it < r)
 		# Make an array of corners and mark the corner where the collision just happened (which is the last item in "places" array)
 		array_corners = Array{Int, 1}[]
 		push!(array_corners, [n, m], [n, m+1], [n+1, m], [n+1, m+1])
-		
+
 		d(i) = dist_point_line(array_corners[i][1], array_corners[i][2], k, b)
 		#dsign(i) = dist_point_line_sign(array_corners[i][1], array_corners[i][2], k, b)
-		
+
 		j = 0
 		for i = 1:length(array_corners)
 			if array_corners[i] == places[length(places)]
 				j = i
 			end
 		end
-		
-		
+
+
 		# Array of the rest of the corners (3 other which may or may not experience collision); does not work at 1st step
 		# The first two numbers are the corner coords, and the third is true/false (1/0) whether it leaves square
 		array_rest_corners = Array{Int, 1}[]
@@ -306,16 +306,16 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 				push!(array_rest_corners, [array_corners[i], !(d(i) < r && dot([vx, vy], array_corners[i] - [x, y]) > 0)]) # The dot() added to prevent counting a backward ball - p. 86 nb. unam1
 			end
 		end
-		
+
 		# There is a difficulty: at the first step, we have a dummy place in places, which is obviously not the previous collision, and the corner which is behind the initial position of the particle doesn't get deleted and the algorithm may mistakenly count it as the first collision. We have to detect and delete it.
 		# 1st step: delete the obstacle that is the closest backwards
 		# Determine through which wall it would exit if moved backwards
    		# Times to each wall (vertical, horizontal)
-   		if steps == 1	
-	   		
-	   		tv1 = (n - x)/vx 
+   		if steps == 1
+
+	   		tv1 = (n - x)/vx
 			tv2 = (n - x + 1)/vx
-			th1 = (m - y)/vy 
+			th1 = (m - y)/vy
 			th2 = (m - y + 1)/vy
 
 			array_times_back = BigFloat[]
@@ -328,7 +328,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 				if array_times_back[i] > maxneg && array_times_back[i] < 0
 					maxneg = array_times_back[i]
 					number = i
-				end				
+				end
 			end
 			# wall number: 1 = left, 2 = right, 3 = bottom, 4 = top
 			# corner number: 1 = bottom left, 2 = top left, 3 = bottom right, 4 = top right
@@ -358,18 +358,18 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 				end
 			end
 		end
-		
+
 		# Whether the particle leaves square or collides in the same square
 		leaves_square = array_rest_corners[1][3] == 1 && array_rest_corners[2][3] == 1 && array_rest_corners[3][3] == 1
 
 		# If the particle exits the unit square without another collision
 		if leaves_square
-		
+
 	   		# determine through which wall it will exit
 	   		# times to each wall (vertical, horizontal)
-	   		tv1 = (n - x)/vx 
+	   		tv1 = (n - x)/vx
 			tv2 = (n - x + 1)/vx
-			th1 = (m - y)/vy 
+			th1 = (m - y)/vy
 			th2 = (m - y + 1)/vy
 
 			array_times = BigFloat[]
@@ -382,13 +382,13 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 				if array_times[i] < minpos && array_times[i] > 0
 					minpos = array_times[i]
 					number = i
-				end				
+				end
 			end
 			# number: 1 = left, 2 = right, 3 = bottom, 4 = top
-			
+
 		   	# if the walls are vertical, we don't need to rotate coords for first_collision(). We just run first_collision(), get the next obstacle and collide()
 		   	if number == 1 || number == 2
-		   	
+
 		   		if number == 1
 					posx = n
 					posy = m
@@ -400,18 +400,18 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 					x1 = 0
 					y1 = y + k*(n + 1 - x) - m
 				end
-				
+
 				q, p = first_collision(x1, y1, vx, vy, abs(r/vx))
 				push!(places, [q + posx, p + posy])
-	
+
 				x, y, vx, vy = collide(q + posx, p + posy, x1 + posx, y1 + posy, vx, vy, r)
 				push!(coords, [x, y])
 				push!(speeds, [vx, vy])
 				# And we obtain coords of collision and new velocity, and then cycle continues
-				
+
 		   	elseif number == 3 || number == 4
 		   		# Here we have to rotate
-		   	
+
 				if number == 3
 					posx = m
 					posy = n
@@ -423,7 +423,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 					y1 = x + (m + 1 - y)/k - n
 					x1 = 0
 				end
-				
+
 				# Now the coords are rotated. In this rotated system, find the coords of the next obstacle
 				q, p = first_collision(x1, y1, vy, vx, abs(r/vy))
 				# Record the coords rotated back
@@ -432,11 +432,11 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 				x, y, vx, vy = collide(p + posy, q + posx, y1 + posy, x1 + posx, vx, vy, r)
 				push!(coords, [x, y])
 				push!(speeds, [vx, vy])
-		   	
+
 		   	end
-		   	
-		# Now what if the particle doesn't exit the square? Obtain where it doesn't (coords of obstacle), collide there and continue cycle   	
-		
+
+		# Now what if the particle doesn't exit the square? Obtain where it doesn't (coords of obstacle), collide there and continue cycle
+
 		elseif array_rest_corners[1][3] == 0
 			place = [array_rest_corners[1][1], array_rest_corners[1][2]]
 			push!(places, place)
@@ -445,7 +445,7 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 			push!(speeds, [vx, vy])
 		elseif array_rest_corners[2][3] == 0
 			place = [array_rest_corners[2][1], array_rest_corners[2][2]]
-			push!(places, place)		
+			push!(places, place)
 			x, y, vx, vy = collide(place[1], place[2], x, y, vx, vy, r)
 			push!(coords, [x, y])
 			push!(speeds, [vx, vy])
@@ -502,18 +502,18 @@ end
 # Calculates collisions based on comparing output of 2D first_collision
 function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 	set_bigfloat_precision(prec)
-	
+
 	x = big(x); v = big(v); r = big(r)
 	#x = [BigFloat("$(x[1])"), BigFloat("$(x[2])"), BigFloat("$(x[3])")]; v = [BigFloat("$(v[1])"), BigFloat("$(v[2])"), BigFloat("$(v[3])")]; r = BigFloat("$r")
-	
+
 	v = v/norm(v)
-	
+
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
 
 	steps = 1
-	
+
 	while steps <= maxsteps
 
 		# Projection functions that convert 3D vectors into 2D without dot and cross
@@ -526,29 +526,29 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 		v_xy = [Pxy(v)[1], Pxy(v)[2]]
 		v_yz = [Pyz(v)[1], Pyz(v)[2]]
 		v_xz = [Pxz(v)[1], Pxz(v)[2]]
-	
+
 		v_xy = v_xy/norm(v_xy)
 		v_yz = v_yz/norm(v_yz)
 		v_xz = v_xz/norm(v_xz)
-		
+
 		# First collision in 2D (function first_collision() only works for a special set of initial conditions, that's why collisions() has so much code generalizing it)
 		first(x, v, r, prec) = collisions(x[1], x[2], v[1], v[2], r, 1, prec)[1][1]
 
 		x1, y1 = first(Pxy(x), v_xy, r, prec) #x, y
 		y2, z2 = first(Pyz(x), v_yz, r, prec) #y, z
 		x3, z3 = first(Pxz(x), v_xz, r, prec) #x, z
-	
+
 		# Condition that all of them correspond to the same point (x, y, z) of collision
 		# hit = q1 == q3 && p1 == q2 && p2 == p3
 		# The condition above may miss a valid collision - see images. Below is a better one
-		
+
 		condition1 = x1 == x3
 		condition2 = y1 == y2
 		condition3 = z2 == z3
-		
+
 		# Possible hit
 		possible_hit = condition1 || condition2 || condition3
-		
+
 		if possible_hit
 			# Check if there is a possible collision
 			if condition1 && !condition2 && !condition3
@@ -586,9 +586,9 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 					ball = [x3, y2, z2]
 				end
 			end
-			
+
 			x_new = collide3d(x, ball, v, r)
-		
+
 			if x_new != false
 				# Definitely a collision
 				v = v_new(x_new, ball, v)
@@ -604,9 +604,9 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 				t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
 				t = min(t1, t2, t3)
 				x += v*t + v*(0.5)
-								
+
 			end
-			
+
 		# And if possible_hit returns false, i.e., none of the 3 conditions is satisfied, we take the farthest (!!! nearest - see timeline) point it went and continue from a little further from there
 		else
 			t1 = sqrt((x1 - x[1])^2 + (y1 - x[2])^2)/norm([v[1], v[2]])
@@ -614,7 +614,7 @@ function collisions3d(x, v, r, maxsteps, prec::Integer=64)
 			t3 = sqrt((x3 - x[1])^2 + (z3 - x[3])^2)/norm([v[1], v[3]])
 			t = min(t1, t2, t3)
 			x += v*t + v*(0.5)
-		end	
+		end
 
 	end
 	return places, coords, speeds
@@ -624,12 +624,12 @@ end
 # Calculates collisions based on time
 function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	set_bigfloat_precision(prec)
-	
+
 	x = big(x); v = big(v); r = big(r)
 	#x = [BigFloat("$(x[1])"), BigFloat("$(x[2])"), BigFloat("$(x[3])")]; v = [BigFloat("$(v[1])"), BigFloat("$(v[2])"), BigFloat("$(v[3])")]; r = BigFloat("$r")
-	
+
 	v /= norm(v)
-	
+
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
@@ -637,12 +637,12 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	approx_equal(x, y) = abs(x - y) < 0.4 # Was 0.3; setting it to 0.2 leads to errors for r = 0.1; set 0.4 for new time_to_circle to work
 
 	steps = 1
-	
+
 	first(x, v, d1, d2, r, prec) = collisions(x[d1], x[d2], v[d1], v[d2], r, 1, prec)[1][1]
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/norm([v[d1], v[d2]])
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt(((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(v[d1]^2 + v[d2]^2))
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = min(abs((coord1 - x[d1])/v[d1]), abs((coord2 - x[d2])/v[d2]))
-	
+
 	# Supposedly efficient function time_to_circle without sqrt
 	function time_to_circle(x, v, coord1, coord2, d1, d2)
 	    p = (coord1 - x[d1])*v[d2] - (coord2 - x[d2])*v[d1]
@@ -660,41 +660,50 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	        else
 	            return max(tx, ty)
 	        end
-	    end	
+	    end
 	end
-	
-	
-	while steps <= maxsteps
+
+
+
+while steps <= maxsteps
 
 		x1, y1 = first(x, v, 1, 2, r, prec)
 		y2, z2 = first(x, v, 2, 3, r, prec)
 
+
 		t1 = time_to_circle(x, v, x1, y1, 1, 2)
 		t2 = time_to_circle(x, v, y2, z2, 2, 3)
-        
+
+
+		int_steps = 0
+		x_ahead = x
 		while !approx_equal(t1, t2)
 			t = min(t1, t2)
-			x += v*t + v*0.01
-			
+			x_ahead = v*t + v*(0.1)
+
 			if t == t1
-				x1, y1 = first(x, v, 1, 2, r, prec) #x, y
+				x1, y1 = first(x_ahead, v, 1, 2, r, prec) #x, y
+				@show t1 += 0.1 + time_to_circle(x_ahead, v, x1, y1, 1, 2)
 			elseif t == t2
-				y2, z2 = first(x, v, 2, 3, r, prec) #y, z
-			end				
-			
-		    t1 = time_to_circle(x, v, x1, y1, 1, 2)
-			t2 = time_to_circle(x, v, y2, z2, 2, 3)
+				y2, z2 = first(x_ahead, v, 2, 3, r, prec) #y, z
+				@show t2 += 0.1 + time_to_circle(x_ahead, v, y2, z2, 2, 3)
+			end
+
+
+
+
+			@show int_steps += 1
 		end
-			
+
 		ball = [x1, y1, z2]
-		
+
 		x_new = collide3d(x, ball, v, r)
-	
+
 		if x_new != false
 			# Definitely a collision
 			v = v_new(x_new, ball, v)
 			x = x_new
-			push!(places, ball)
+			@show push!(places, ball)
 			push!(coords, x)
 			push!(speeds, v)
 			steps += 1
@@ -702,13 +711,16 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 		else
 			#t1 = time_to_circle(x, v, x1, y1, 1, 2)
 			#t2 = time_to_circle(x, v, y2, z2, 2, 3)
-			t = min(t1, t2)
-			x += v*t + v*0.01
-							
+			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
+			t = min(t1, t2, t3)
+			x += v*t + v*(0.5)
+
 		end
-		
+
 
 	end
+
+
 	return places, coords, speeds
 end
 
@@ -721,29 +733,29 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 	set_bigfloat_precision(precision)
 
 	N = length(x)
-	
+
 	if length(x) != length(v)
 		error("Dimensions mismatch")
 	end
-	
+
 	x = big(x)
 	v = big(v)
 	v = v/norm(v)
-	
+
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
 
 	steps = 1
 	global_steps = 1
-	
+
 	while steps <= maxsteps
-	
+
 		# Projection functions on planes P(dim1, dim2, vec)
 		P(d1, d2, x) = [x[d1], x[d2]]
-		
+
 		first(x, v, r, precision::Integer=64) = collisions(x[1], x[2], v[1], v[2], r, 1, precision)[1][1]
-		
+
 		# Array of gathered 2D collision places
 		array_v2d = Vector{Int}[]
 		for i = 1:N
@@ -754,9 +766,9 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 				push!(array_v2d, [circle, [i, j]])
 			end
 		end
-		
+
 		#@show array_v2d
-		
+
 		# Compare and collect coinciding circle coordinates between each two elements
 		NC = N*(N-1)/2
 		coinciding_points = Vector{Int}[] # Coordinate, dimension number
@@ -767,30 +779,30 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 						if array_v2d[i][1] == array_v2d[j][1]
 							push!(coinciding_points, [array_v2d[i][1], array_v2d[i][3]])
 						end
-						
+
 					elseif array_v2d[i][4] == array_v2d[j][4]
 						if array_v2d[i][2] == array_v2d[j][2]
 							push!(coinciding_points, [array_v2d[i][2], array_v2d[i][4]])
 						end
-						
+
 					elseif array_v2d[i][3] == array_v2d[j][4]
 						if array_v2d[i][1] == array_v2d[j][2]
 							push!(coinciding_points, [array_v2d[i][1], array_v2d[i][3]])
 						end
-					
+
 					elseif array_v2d[i][4] == array_v2d[j][3]
 						if array_v2d[i][2] == array_v2d[j][1]
 							push!(coinciding_points, [array_v2d[i][2], array_v2d[i][4]])
 						end
-						
+
 					end
 				end
-			end			
+			end
 		end
-		
+
 		# Clean up dupes
 		points = unique(coinciding_points)
-		
+
 		# It may happen that there is more than 1 coinciding point for a given dimension, and length(points) > N. We have to take one which is the closest to the original point
 		extra_points = Int[]
 		for i = 1:length(points)
@@ -803,7 +815,7 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 						end
 					end
 				end
-			end		
+			end
 		end
 		points
 		deleteat!(points, extra_points)
@@ -814,8 +826,8 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 		if length(points) == N
 			j = 1
 			while j <= N
-				
-			
+
+
 				for i = 1:N
 					if j == points[i][j]
 					push!(points1, points[i][j])
@@ -823,24 +835,24 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 				end
 				j += 1
 			end
-			
+
 		end
 		#@show points1
 		=#
-		
-		
+
+
 		# If there are coinciding points, it is a possible collision
 		if length(points) > 0
-			
+
 			ball = Int[]
-			
+
 			for i = 1:length(points)
 				push!(ball, points[i][1])
 			end
 			#@show ball
-			
+
 			x_new = collide3d(x, ball, v, r)
-			
+
 			# If x_new does not output false, there is definitely a collision
 			if x_new != false
 				v = v_new(x_new, ball, v)
@@ -855,34 +867,34 @@ function collisionsnd(x, v, r, maxsteps, precision::Integer=64)
 				v_x1x2 /= norm(v_x1x2)
 				place_x1x2 = collisions(x[1], x[2], v_x1x2[1], v_x1x2[2], r, 1)[2][2]
 				t1 = (place_x1x2[1] - x[1])/v_x1x2[1]
-				
+
 				newplace = BigFloat[]
 				push!(newplace, place_x1x2[1], place_x1x2[2])
 				for i = 3:N
 					push!(newplace, x[i] + v[i]*t1)
 				end
-				
+
 				# Need to advance from the false collision point at least by a distance larger than a ball diameter, otherwise the algorithm may get stuck at the same point
-				x = newplace + v*(2r + 0.1) 
+				x = newplace + v*(2r + 0.1)
 			end
-			
+
 		# And if array points is empty, i.e., no coinciding points, we take the farthest point it went and continue from there
 		else
-			
+
 			times = BigFloat[]
 			for i = 1:N
-				push!(times, sqrt((array_v2d[i][1] - x[array_v2d[[3]]])^2 + (array_v2d[i][2] - x[array_v2d[4]])^2)/norm([v[array_v2d[3]], v[array_v2d[4]]]))		
+				push!(times, sqrt((array_v2d[i][1] - x[array_v2d[[3]]])^2 + (array_v2d[i][2] - x[array_v2d[4]])^2)/norm([v[array_v2d[3]], v[array_v2d[4]]]))
 			end
 			t = findmax(times)[1]
 			x += v*t
-		
+
 		end
 
-		global_steps += 1	
-		
-		
+		global_steps += 1
+
+
 	end
-	
+
 end
 
 # End of module
