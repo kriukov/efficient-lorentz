@@ -676,17 +676,17 @@ while steps <= maxsteps
 
 
 		int_steps = 0
-		x_ahead = x
+# 		x_ahead = x
 		while !approx_equal(t1, t2)
 			t = min(t1, t2)
-			x_ahead = v*t + v*(0.1)
+			x += v*(t+0.1)
 
 			if t == t1
-				x1, y1 = first(x_ahead, v, 1, 2, r, prec) #x, y
-				@show t1 += 0.1 + time_to_circle(x_ahead, v, x1, y1, 1, 2)
+				x1, y1 = first(x, v, 1, 2, r, prec) #x, y
+				@show t1 += 0.1 + time_to_circle(x, v, x1, y1, 1, 2)
 			elseif t == t2
-				y2, z2 = first(x_ahead, v, 2, 3, r, prec) #y, z
-				@show t2 += 0.1 + time_to_circle(x_ahead, v, y2, z2, 2, 3)
+				y2, z2 = first(x, v, 2, 3, r, prec) #y, z
+				@show t2 += 0.1 + time_to_circle(x, v, y2, z2, 2, 3)
 			end
 
 
@@ -712,7 +712,7 @@ while steps <= maxsteps
 			#t1 = time_to_circle(x, v, x1, y1, 1, 2)
 			#t2 = time_to_circle(x, v, y2, z2, 2, 3)
 			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
-			t = min(t1, t2, t3)
+			t = min(t1, t2)
 			x += v*t + v*(0.5)
 
 		end
