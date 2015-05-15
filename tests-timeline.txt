@@ -687,6 +687,10 @@ compare_lorentz3d(x, v, r, 1000, 1024): Diverged at element 23
 
 Old version: 1024 - Diverged at element 33
 
+##################
 
+new efficient version skips balls
+
+example: for the standard case (x = [0.532282, 0.531928, 0.267589]; v = [0.665341, 0.668661, 0.331986]; r = 0.1) the 4th ball is [-27,-9,-16], x = [-2.70281797949408211599e+01,-8.92785801119670939779e+00,-1.59367431220451154054e+01]. 
 
 

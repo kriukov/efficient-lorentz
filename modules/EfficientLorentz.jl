@@ -663,36 +663,31 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	    end
 	end
 
-
-
-while steps <= maxsteps
+    while steps <= maxsteps
 
 		x1, y1 = first(x, v, 1, 2, r, prec)
 		y2, z2 = first(x, v, 2, 3, r, prec)
 
-
 		t1 = time_to_circle(x, v, x1, y1, 1, 2)
 		t2 = time_to_circle(x, v, y2, z2, 2, 3)
 
-
 		int_steps = 0
-# 		x_ahead = x
+
 		while !approx_equal(t1, t2)
 			t = min(t1, t2)
-			x += v*(t+0.1)
+			x_ahead = x + v*(t + 0.2)
 
 			if t == t1
-				x1, y1 = first(x, v, 1, 2, r, prec) #x, y
-				@show t1 += 0.1 + time_to_circle(x, v, x1, y1, 1, 2)
+				x1, y1 = first(x_ahead, v, 1, 2, r, prec) #x, y
+				t1 = time_to_circle(x, v, x1, y1, 1, 2)
+
 			elseif t == t2
-				y2, z2 = first(x, v, 2, 3, r, prec) #y, z
-				@show t2 += 0.1 + time_to_circle(x, v, y2, z2, 2, 3)
+    			y2, z2 = first(x_ahead, v, 2, 3, r, prec) #y, z
+				t2 = time_to_circle(x, v, y2, z2, 2, 3)
+
 			end
 
-
-
-
-			@show int_steps += 1
+			int_steps += 1
 		end
 
 		ball = [x1, y1, z2]
@@ -703,20 +698,16 @@ while steps <= maxsteps
 			# Definitely a collision
 			v = v_new(x_new, ball, v)
 			x = x_new
-			@show push!(places, ball)
+			push!(places, ball)
 			push!(coords, x)
 			push!(speeds, v)
 			steps += 1
 		# If x_new returns false, continue moving from the farthest point
 		else
-			#t1 = time_to_circle(x, v, x1, y1, 1, 2)
-			#t2 = time_to_circle(x, v, y2, z2, 2, 3)
-			#t3 = time_to_circle(x, v, x3, z3, 1, 3)
 			t = min(t1, t2)
-			x += v*t + v*(0.5)
+			x += v*(t + 0.01)
 
 		end
-
 
 	end
 
