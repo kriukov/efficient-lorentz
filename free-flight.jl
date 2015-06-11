@@ -51,19 +51,20 @@ println(averaged_points)
 =#
 
 # Fix the velocity and randomize initial position, then choose the maximum free flight of all
-v = [sqrt(1/3), sqrt(2/3)] # Slope of velocity = sqrt(2)
-k = 1 - 0.2/sqrt(2); b = 0.1/sqrt(2)
-
+#v = [sqrt(1/3), sqrt(2/3)] # Slope of velocity = sqrt(2)
+#k = 1 - 0.2/sqrt(2); b = 0.1/sqrt(2)
+#=
 function freeflight2d_randomxmax(v)
     time_to_1st = Array{Real, 1}[]
-    for n = 1:8
+    for n = 6:8
 	    r0 = 1/10^n
 	    for i = 1:9
 		    r = r0 - i/10^(n+1)
 	        # For this given radius, find free flight for random x (in reduced 0-1 square) and take the maximum
 	        freeflights = Real[]
-	        for i = 1:1e6
-	            x = [k*rand() + b, k*rand() + b]
+	        for i = 1:1000
+	            #x = [k*rand() + b, k*rand() + b]
+	            x = [0.8*rand() + 0.1, 0.8*rand() + 0.1]
 		        first_place = collisions(x[1], x[2], v[1], v[2], r, 1, 256)[1][1]
 		        dist_to_1st = norm(first_place - x)
 		        push!(freeflights, dist_to_1st)
@@ -75,8 +76,12 @@ function freeflight2d_randomxmax(v)
     time_to_1st
 end
 
+phi = (1 + sqrt(5))/2
+v = [cos(phi), sin(phi)]
 data = freeflight2d_randomxmax(v)
 println(data)
+=#
+
 
 ## 3D
 
@@ -95,28 +100,37 @@ for n = 1:7
 end
 =#
 
-#= Trying out different velocities, at least in the first octant
+# Trying out different velocities, at least in the first octant
 time_to_1st = Array{Real, 1}[]
 
-for phi1 = 1:9
-for theta1 = 1:9
+#for phi1 = 1:9
+#for theta1 = 1:9
 
-phi = phi1*(pi/2)/10
-theta = theta1*(pi/2)/10
+#phi = phi1*(pi/2)/10
+#theta = theta1*(pi/2)/10
+phi = 2pi*rand()
+theta = pi*rand()
 
 v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
-for n = 1:4
+
+for n = 6:8
 	r0 = 1/10^n
 	for i = 0:9
 		r = r0 - i/10^(n+1)
-		first_place = collisions3d_time(x, v, r, 1, 64)[2][1]
-		dist_to_1st = norm(first_place - x)
+		freeflights = Real[]
+		for i = 1:100
+    		x = [0.8*rand() + 0.1, 0.8*rand() + 0.1, 0.8*rand() + 0.1]
+	    	first_place = collisions3d_time(x, v, r, 1, 256)[2][1]
+		    dist_to_1st = norm(first_place - x)
+		    push!(freeflights, dist_to_1st)
+		end
+		max_dist_to_1st = findmax(freeflights)[1]
 		println(v, " ", r, " ", dist_to_1st)
-		push!(time_to_1st, [v, r, dist_to_1st])
+		push!(time_to_1st, [r, max_dist_to_1st])
 	end
 	time_to_1st
 end
 
-end
-end
-=#
+#end
+#end
+

@@ -262,8 +262,6 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 	vx = vx1
 	vy = vy1
 
-
-
 	steps = 1
 	places = Vector{BigInt}[]
 	coords = Vector{BigFloat}[]
