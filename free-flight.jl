@@ -101,7 +101,7 @@ for n = 1:5
 end
 =#
 
-#= Trying out different velocities, at least in the first octant
+# Trying out different velocities, at least in the first octant
 time_to_1st = Array{Real, 1}[]
 
 #for phi1 = 1:9
@@ -112,17 +112,21 @@ time_to_1st = Array{Real, 1}[]
 
 #phi = 2pi*rand()
 #theta = pi*rand()
-
+#=
 phi = sqrt(2)
 theta = (1 + sqrt(5))/2
 v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
+=#
 
-for n = 3:6
+phi = (1 + sqrt(5))/2
+v = [1/(phi + 2), phi/(phi + 2), phi/sqrt(phi + 2)]
+
+for n = 3:4
 	r0 = 1/10^n
 	for i = 1:9
 		r = r0 - i/10^(n+1)
 		freeflights = Real[]
-		for i = 1:10
+		for i = 1:50
     		x = [0.8*rand() + 0.1, 0.8*rand() + 0.1, 0.8*rand() + 0.1]
 	    	first_place = collisions3d_time(x, v, r, 1, 64)[2][1]
 		    dist_to_1st = norm(first_place - x)
@@ -137,8 +141,9 @@ end
 
 #end
 #end
-=#
 
+
+#= Collecting all points instead of taking the maximum
 phi = (1 + sqrt(5))/2
 v = [1/(phi + 2), phi/(phi + 2), phi/sqrt(phi + 2)]
 
@@ -157,5 +162,5 @@ for n = 3:4
 	end
 	println(freeflightsdist)
 end
-
+=#
 
