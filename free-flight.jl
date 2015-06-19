@@ -124,17 +124,25 @@ v = [1/(phi + 2), phi/(phi + 2), phi/sqrt(phi + 2)]
 for n = 3:4
 	r0 = 1/10^n
 	for i = 1:9
-		r = r0 - i/10^(n+1)
-		freeflights = Real[]
-		for i = 1:50
-    		x = [0.8*rand() + 0.1, 0.8*rand() + 0.1, 0.8*rand() + 0.1]
-	    	first_place = collisions3d_time(x, v, r, 1, 64)[2][1]
-		    dist_to_1st = norm(first_place - x)
-		    push!(freeflights, dist_to_1st)
-		end
-		max_dist_to_1st = findmax(freeflights)[1]
-		println(r, " ", max_dist_to_1st)
-		push!(time_to_1st, [r, max_dist_to_1st])
+	    for k = 1:2
+		    r = r0 - i/10^(n+1) + (k-1)/(2*10^(n+1))
+		    freeflights = Real[]
+		    exec_t = 0
+		    N = 100
+		    for j = 1:N
+        		x = [0.8*rand() + 0.1, 0.8*rand() + 0.1, 0.8*rand() + 0.1]
+        		tic()
+	        	first_place = collisions3d_time(x, v, r, 1, 64)[2][1]
+	        	exec_t += toq()
+		        dist_to_1st = norm(first_place - x)
+		        push!(freeflights, dist_to_1st)
+		    end
+		    exec_t /= N
+		    max_dist_to_1st = findmax(freeflights)[1]
+		    sigma = sqrt(var(freeflights))
+		    println(r, " ", max_dist_to_1st, " ", sigma, "; avg. exectime = ", exec_t)
+		    push!(time_to_1st, [r, max_dist_to_1st, sigma, exec_t])
+        end
 	end
 	time_to_1st
 end
