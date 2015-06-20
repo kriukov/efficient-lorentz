@@ -121,7 +121,7 @@ v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
 phi = (1 + sqrt(5))/2
 v = [1/(phi + 2), phi/(phi + 2), phi/sqrt(phi + 2)]
 
-for n = 3:4
+for n = 5:6
 	r0 = 1/10^n
 	for i = 1:9
 	    for k = 1:2

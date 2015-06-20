@@ -623,8 +623,8 @@ end
 function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	set_bigfloat_precision(prec)
 
-	x = big(x); v = big(v); r = big(r)
-	#x = [BigFloat("$(x[1])"), BigFloat("$(x[2])"), BigFloat("$(x[3])")]; v = [BigFloat("$(v[1])"), BigFloat("$(v[2])"), BigFloat("$(v[3])")]; r = BigFloat("$r")
+	#x = big(x); v = big(v); r = big(r)
+	x = [BigFloat("$(x[1])"), BigFloat("$(x[2])"), BigFloat("$(x[3])")]; v = [BigFloat("$(v[1])"), BigFloat("$(v[2])"), BigFloat("$(v[3])")]; r = BigFloat("$r")
 
 	v /= norm(v)
 

@@ -6,7 +6,7 @@ using ClassicalLorentz
 
 # Measuring first collision execution time as a function of radius (general function)
 # x, v - init.cond, N - count down to r = 10^-N, alg - 'E' or 'C', dim - 2 or 3
-function exectime_vs_r(x, v, N, alg, dim, prec)
+function exectime_vs_r(x, v, N0, N, alg, dim, prec)
 	if alg == 'E'
 		if dim == 2
 			f(r, prec) = collisions(x[1], x[2], v[1], v[2], r, 1, prec)
@@ -29,7 +29,7 @@ function exectime_vs_r(x, v, N, alg, dim, prec)
 	time_vs_r = Array{Real, 1}[]
 	@elapsed f(0.11, prec) #For some reason, first calc. takes much longer (probably initialization)
 	push!(time_vs_r, [0.1, @elapsed f(0.1, prec)])
-	for n = 1:N-1
+	for n = N0:N-1
 	    r0 = 1/10^n
 	    for i = 1:9
 		    r = r0 - i/10^(n+1)
@@ -44,7 +44,7 @@ end
 
 # Average runner to run many times the exec. time functions with many random init. cond. and take average results
 # N - count down to r = 10^-N, alg - 'E' or 'C', dim - 2 or 3, times - how many init. cond.
-function averagerunner(N, alg, dim, times, prec)
+function averagerunner(N0, N, alg, dim, times, prec)
 	time_vs_r_many = Array{Array{Real, 1}, 1}[]
 	for i = 1:times
 		if dim == 2
@@ -53,13 +53,15 @@ function averagerunner(N, alg, dim, times, prec)
 	        v = [cos(phi), sin(phi)]
 		elseif dim == 3
 			x = [0.8*rand() + 0.1, 0.8*rand() + 0.1, 0.8*rand() + 0.1]
-			phi = 2pi*rand(); theta = pi*rand()
-			v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
+			#phi = 2pi*rand(); theta = pi*rand()
+			#v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
+			phi = (1 + sqrt(5))/2
+			v = [1/(phi + 2), phi/(phi + 2), phi/sqrt(phi + 2)]
 		else 
 			error("Only works for 2 or 3 dimensions")
 		end
 		
-		push!(time_vs_r_many, exectime_vs_r(x, v, N, alg, dim, prec))
+		push!(time_vs_r_many, exectime_vs_r(x, v, N0, N, alg, dim, prec))
 	end
 	averaged_points = Array{Real, 1}[]
 	l = length(time_vs_r_many) #How many runs (random speeds/coords) we made
