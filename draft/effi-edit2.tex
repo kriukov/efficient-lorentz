@@ -22,7 +22,7 @@
 
 \begin{document}
 
-\title{Efficient algorithm for periodic Lorentz gas using continued fractions}
+\title{Efficient algorithm for the periodic Lorentz gas in 2 and 3 dimensions}
 \author{Atahualpa S.~Kraemer}
 \email{ata.kraemer@gmail.com}
 \affiliation{Institut für Theoretische Physik II - Soft Matter
@@ -31,6 +31,10 @@ Building 25.32
 Room O2.56
 Universitätsstrasse 1
 D-40225 Düsseldorf, Germany}
+
+\author{Nikolay Kryukov}
+\email{kryukov@ciencias.unam.mx}
+
 \author{David P.~Sanders}
 \email{dpsanders@ciencias.unam.mx}
 \affiliation{Departamento de F\'isica, Facultad de Ciencias, Universidad Nacional
@@ -41,7 +45,7 @@ Ciudad Universitaria, M\'exico D.F.\ 04510, Mexico
 \date{\today}
 \begin{abstract}
 
-An efficient algorithm using continued fractions to calculate collisions for a periodic Lorentz gas in 2 and 3 dimensions is developed. The method works very well in the 2-dimensional case, obtaining the exact disc with which a particle will collide at each step, instead of using periodic boundary conditions. However, the 3D case obtains these coordinates only with a probability $\pp$ which depends on the size of the obstacles as $\pp= 1-(16-\sqrt{128}-\frac{4}{3} \pi) r^3 \sim 1-0.5 r^3$. This 3D algorithm is generalizable to higher dimensions; however, the efficiency of the method becomes worse. 
+We present an efficient algorithm to calculate collisions for a periodic Lorentz gas in 2 and 3 dimensions, using continued fractions. The method works very well in the 2-dimensional case, obtaining the exact disc with which a particle will collide at each step, instead of using periodic boundary conditions. However, the 3D case obtains these coordinates only with a probability $\pp$ which depends on the size of the obstacles as $\pp= 1-(16-\sqrt{128}-\frac{4}{3} \pi) r^3 \sim 1-0.5 r^3$. This 3D algorithm is generalizable to higher dimensions; however, the efficiency of the method becomes worse. 
 \end{abstract}
 
 \maketitle
@@ -69,7 +73,7 @@ Apparently the algorithm for this, using continued fractions, was developed befo
 \section{2D algorithm}
 \label{algorithm}
 
-The goal of the 2D algorithm is to calculate efficiently where the first collision of a particle will occur inside a square lattice. Without lost of generality, we will use the lattice formed by the integer coordinates in the 2D plane. Then, we want to calculate the minimal time $t>0$, such that $|\vec{c}-(\vec{x_0}+\vec{v_0}t)|=r$, where $r$ is the radius of the obstacle, $\vec{x_0}$ and $\vec{v_0}$ are the initial position and velocity of the particles, and $\vec{c}=(q,p)$ are the integer coordinates. In this case, the collision takes place at the point $\vec{x_0}+\vec{v_0}t$, with the center of the obstacle at $\vec{c}$. 
+The goal of the 2D algorithm is to calculate efficiently where the first collision of a particle will occur inside a square lattice. Without loss of generality, we will use the lattice formed by the integer coordinates in the 2D plane. Then, we want to calculate the minimal time $t>0$, such that $|\vec{c}-(\vec{x_0}+\vec{v_0}t)|=r$, where $r$ is the radius of the obstacle, $\vec{x_0}$ and $\vec{v_0}$ are the initial position and velocity of the particles, and $\vec{c}=(q,p)$ are the integer coordinates. In this case, the collision takes place at the point $\vec{x_0}+\vec{v_0}t$, with the center of the obstacle at $\vec{c}$. 
 
 As the first improvement over the classical algorithm for the 2D case note that instead of finding the intersection between a line (corresponding to the trajectory of the particle, $y=\alpha x+b$) and a circle (corresponding to the obstacle $(x-q)^2+(y-p)^2=r^2$), we can solve the intersection between two lines: $y=\alpha x+b$ and $x=q$. As it is shown in figure \ref{fig:circle}, if $|\alpha q+b-p|=|b|<\delta=r/v_1$, then a collision will take place. Of course, this is true only if $v_1>0$ and $v_2>0$, but after each collision, we can always rotate or reflect the system (because of the symmetry) such that these conditions are satisfied. Even better, because of the periodic boundary conditions, we can always put $1>b>0$, then we only need to solve $b<\delta$, this already gives us a very powerful tool to calculate with which obstacle the particle will collide. 
 
@@ -82,7 +86,7 @@ where $\{ \cdot \}$ denote the fractional part, and $k_n=k_{n-1}+1$, where $k_1$
 
 \begin{figure}
 \centering
-\includegraphics [width=240pt]{./line-circle.png}
+\includegraphics [width=240pt]{line-circle.pdf}  % indices too small
 \caption{Relation between the intersection of a line and a circle with integer coordinates and the intersection of the line with the x-axis}
 \label{fig:circle}
 \end{figure}
@@ -325,7 +329,7 @@ function v_new(x1, x2, v)
 end
 \end{verbatim}
 
-\section{Applications}
+\section{Numerical measurements}
 
 We measured the average time of the execution of the function finding the first collision starting from the initial point around the origin, depending on the radius of the obstacle, for both the classical and efficient algorithms.
 
@@ -390,7 +394,7 @@ With this succession we can approximate any irrational number $\alpha$ using the
 
 
 \bibliographystyle{apsrev}
-\bibliography{Bib-alg.bib}
+\bibliography{Bib-alg}
 
 
 \end{document}

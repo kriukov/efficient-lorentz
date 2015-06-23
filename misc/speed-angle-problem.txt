@@ -1,0 +1,33 @@
+Speeds when the algorithm without big() gets stuck
+
+[-0.0024617089469663217,-0.0022467265246799233,0.9999944460890688]
+[0.014494302222439621,-0.008974803871228784,0.9998546734893814]
+[-0.004169406218411551,0.00786478430858065,-0.9999603798249036]
+
+[-0.3911789840555722,-0.005974249922013951,0.9202952302229539]
+ERROR: DomainError
+ in collide at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:239
+ in collisions at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:430
+ in first at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:639
+ in collisions3d_time at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:667
+ in anonymous at no file:5
+
+[0.7781921660694848,-0.0035235736076357823,0.6280163509791086]
+ERROR: DomainError
+ in collide at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:239
+ in collisions at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:405
+ in first at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:639
+ in collisions3d_time at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:666
+ in anonymous at no file:5
+
+[0.546553963791189,0.005345364672053284,0.8374068257069931]
+ERROR: DomainError
+ in collide at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:239
+ in collisions at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:430
+ in first at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:639
+ in collisions3d_time at /home/kriukov/temp/efficient-lorentz/modules/EfficientLorentz.jl:667
+ in anonymous at no file:5
+
+
+x = [0.474346, 0.778174, 0.311973]; v = [0.7781921660694848,-0.0035235736076357823,0.6280163509791086]
+collisions3d_time(x, v, 0.01, 1, 64) - DomainError
