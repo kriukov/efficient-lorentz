@@ -41,6 +41,42 @@ function exectime_vs_r(x, v, N0, N, alg, dim, prec)
     time_vs_r
 end
 
+# Log scale point differences
+
+function exectime_vs_r_log(x, v, N0, N1, alg, dim, prec)
+	if alg == 'E'
+		if dim == 2
+			f(r, prec) = collisions(x[1], x[2], v[1], v[2], r, 1, prec)
+		elseif dim == 3
+			f(r, prec) = collisions3d_time(x, v, r, 1, prec)
+		else
+			error("Dimensions must be 2 or 3")
+		end
+	elseif alg == 'C'
+		if dim == 2
+			f(r, prec) = first_collision_classical(x, v, r, prec)
+		elseif dim == 3
+			f(r, prec) = first_collision3d_classical(x, v, r, prec)
+		else
+			error("Dimensions must be 2 or 3")
+		end
+	else 
+		error("Algorithm must be 'E' or 'C'")
+	end
+	time_vs_r = Array{Real, 1}[]
+	@elapsed f(0.11, prec) #For some reason, first calc. takes much longer (probably initialization)
+	for n = N0:N1
+        r = 0.8^n
+	    time_E = (@elapsed f(r, prec))
+	    #println(r, " ", time_E)
+	    push!(time_vs_r, [r, time_E])
+    end
+    time_vs_r
+end
+
+
+
+
 
 # Average runner to run many times the exec. time functions with many random init. cond. and take average results
 # N - count down to r = 10^-N, alg - 'E' or 'C', dim - 2 or 3, times - how many init. cond.
@@ -79,6 +115,39 @@ function averagerunner(N0, N, alg, dim, times, prec)
 end
 
 
+function averagerunner_log(N0, N1, alg, dim, times, prec)
+	time_vs_r_many = Array{Array{Real, 1}, 1}[]
+	for i = 1:times
+		if dim == 2
+			x = [0.8*rand() + 0.1, 0.8*rand() + 0.1]
+			phi = 2pi*rand()
+	        v = [cos(phi), sin(phi)]
+		elseif dim == 3
+			x = [0.8*rand() + 0.1, 0.8*rand() + 0.1, 0.8*rand() + 0.1]
+			#phi = 2pi*rand(); theta = pi*rand()
+			#v = [cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta)]
+			phi = (1 + sqrt(5))/2
+			v = [1/(phi + 2), phi/(phi + 2), phi/sqrt(phi + 2)]
+		else 
+			error("Only works for 2 or 3 dimensions")
+		end
+		
+		push!(time_vs_r_many, exectime_vs_r_log(x, v, N0, N1, alg, dim, prec))
+	end
+	averaged_points = Array{Real, 1}[]
+	l = length(time_vs_r_many) #How many runs (random speeds/coords) we made
+	l1 = length(time_vs_r_many[1]) #How many radii we ran through for each random speed/coord
+	for j = 1:l1
+		s = 0
+		for i = 1:l
+		    s += time_vs_r_many[i][j][2]    
+		end
+		point = [time_vs_r_many[1][j][1], s/l]
+		@show push!(averaged_points, point)
+	end
+
+	averaged_points
+end
 
 
 

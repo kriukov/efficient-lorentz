@@ -646,13 +646,13 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	    p = (coord1 - x[d1])*v[d2] - (coord2 - x[d2])*v[d1]
 	    tx = abs((coord1 - x[d1])/v[d1])
 	    ty = abs((coord2 - x[d2])/v[d2])
-	    if (sign(v[d1]*v[d2]) == 1 && abs(v[d1]) > abs(v[d2])) || (sign(v[d1]*v[d2]) == -1 && abs(v[d1]) < abs(v[d2]))
+	    if (sign(v[d1]*v[d2]) == 1 && abs(v[d1]) >= abs(v[d2])) || (sign(v[d1]*v[d2]) == -1 && abs(v[d1]) < abs(v[d2]))
 	        if p > 0
 	            return max(tx, ty)
 	        else
 	            return min(tx, ty)
 	        end
-	    elseif (sign(v[d1]*v[d2]) == 1 && abs(v[d1]) < abs(v[d2])) || (sign(v[d1]*v[d2]) == -1 && abs(v[d1]) > abs(v[d2]))
+	    elseif (sign(v[d1]*v[d2]) == 1 && abs(v[d1]) < abs(v[d2])) || (sign(v[d1]*v[d2]) == -1 && abs(v[d1]) >= abs(v[d2]))
 	        if p > 0
 	            return min(tx, ty)
 	        else
@@ -663,11 +663,11 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 
     while steps <= maxsteps
 
-		x1, y1 = first(x, v, 1, 2, r, prec)
-		y2, z2 = first(x, v, 2, 3, r, prec)
+		@show x1, y1 = first(x, v, 1, 2, r, prec)
+		@show y2, z2 = first(x, v, 2, 3, r, prec)
 
-		t1 = time_to_circle(x, v, x1, y1, 1, 2)
-		t2 = time_to_circle(x, v, y2, z2, 2, 3)
+		@show t1 = time_to_circle(x, v, x1, y1, 1, 2)
+		@show t2 = time_to_circle(x, v, y2, z2, 2, 3)
 
 		int_steps = 0
 
