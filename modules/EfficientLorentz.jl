@@ -331,25 +331,25 @@ function collisions(x, y, vx, vy, r, maxsteps, prec::Integer=64)
 			# wall number: 1 = left, 2 = right, 3 = bottom, 4 = top
 			# corner number: 1 = bottom left, 2 = top left, 3 = bottom right, 4 = top right
 			if number == 1
-				if k*n + b < m + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0 # Make sure that the time to the wrong ball is also negative
+				if dot([n, m] - [x, y], [vx, vy]) < 0 # Make sure that the time to the wrong ball is also negative
 					deleteat!(array_rest_corners, 1)
 				else
 					deleteat!(array_rest_corners, 2)
 				end
 			elseif number == 2
-				if k*(n + 1) + b < m + 0.5 && dot([n + 1, m] - [x, y], [vx, vy]) < 0
+				if dot([n + 1, m] - [x, y], [vx, vy]) < 0
 					deleteat!(array_rest_corners, 3)
 				else
 					deleteat!(array_rest_corners, 4)
 				end
 			elseif number == 3
-				if (m - b)/k < n + 0.5 && dot([n, m] - [x, y], [vx, vy]) < 0
+				if dot([n, m] - [x, y], [vx, vy]) < 0
 					deleteat!(array_rest_corners, 1)
 				else
 					deleteat!(array_rest_corners, 3)
 				end
 			elseif number == 4
-				if (m + 1 - b)/k < n + 0.5 && dot([n, m + 1] - [x, y], [vx, vy]) < 0
+				if dot([n, m + 1] - [x, y], [vx, vy]) < 0
 					deleteat!(array_rest_corners, 2)
 				else
 					deleteat!(array_rest_corners, 4)
@@ -663,11 +663,11 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 
     while steps <= maxsteps
 
-		@show x1, y1 = first(x, v, 1, 2, r, prec)
-		@show y2, z2 = first(x, v, 2, 3, r, prec)
+		x1, y1 = first(x, v, 1, 2, r, prec)
+		y2, z2 = first(x, v, 2, 3, r, prec)
 
-		@show t1 = time_to_circle(x, v, x1, y1, 1, 2)
-		@show t2 = time_to_circle(x, v, y2, z2, 2, 3)
+		t1 = time_to_circle(x, v, x1, y1, 1, 2)
+		t2 = time_to_circle(x, v, y2, z2, 2, 3)
 
 		int_steps = 0
 

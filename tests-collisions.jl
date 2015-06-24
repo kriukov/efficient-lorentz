@@ -20,10 +20,10 @@ function compare_lorentz2d(x, v, r, t, prec)
 	div_element = 0
 	for i = 1:l
 		if elements_classical[i] == elements_efficient[i]
-			println("Element $i passed: $(elements_efficient[i])")
-			println("Place: \n efficient  $(places_efficient[i+1]), \n classical  $(places_classical[i+1]), \n difference $(places_efficient[i+1] - places_classical[i+1])")
-			println("Speed: \n efficient  $(speeds_efficient[i+1]), \n classical  $(speeds_classical[i+1]), \n difference $(speeds_efficient[i+1] - speeds_classical[i+1])")
-			println("---------------------------")
+			#println("Element $i passed: $(elements_efficient[i])")
+			#println("Place: \n efficient  $(places_efficient[i+1]), \n classical  $(places_classical[i+1]), \n difference $(places_efficient[i+1] - places_classical[i+1])")
+			#println("Speed: \n efficient  $(speeds_efficient[i+1]), \n classical  $(speeds_classical[i+1]), \n difference $(speeds_efficient[i+1] - speeds_classical[i+1])")
+			#println("---------------------------")
 		else
 			println("Diverged at element $i - increase precision")
 			println("Classical: $(elements_classical[i]); Efficient: $(elements_efficient[i])")
