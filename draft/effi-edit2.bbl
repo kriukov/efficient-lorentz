@@ -1,0 +1,198 @@
+\begin{thebibliography}{28}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname bibnamefont\endcsname\relax
+  \def\bibnamefont#1{#1}\fi
+\expandafter\ifx\csname bibfnamefont\endcsname\relax
+  \def\bibfnamefont#1{#1}\fi
+\expandafter\ifx\csname citenamefont\endcsname\relax
+  \def\citenamefont#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\providecommand{\bibinfo}[2]{#2}
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{\citenamefont{Cvitanovi{\'c}
+  et~al.}(1992)\citenamefont{Cvitanovi{\'c}, Gaspard, and
+  Schreiber}}]{cvitanovic1992investigation}
+\bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Cvitanovi{\'c}}},
+  \bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Gaspard}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Schreiber}},
+  \bibinfo{journal}{Chaos: An Interdisciplinary Journal of Nonlinear Science}
+  \textbf{\bibinfo{volume}{2}}, \bibinfo{pages}{85} (\bibinfo{year}{1992}).
+
+\bibitem[{\citenamefont{Bunimovich and
+  Sinai}(1981)}]{bunimovich1981statistical}
+\bibinfo{author}{\bibfnamefont{L.~A.} \bibnamefont{Bunimovich}}
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{Y.~G.} \bibnamefont{Sinai}},
+  \bibinfo{journal}{Communications in Mathematical Physics}
+  \textbf{\bibinfo{volume}{78}}, \bibinfo{pages}{479} (\bibinfo{year}{1981}).
+
+\bibitem[{\citenamefont{Latz et~al.}(1997)\citenamefont{Latz, Van~Beijeren, and
+  Dorfman}}]{latz1997lyapunov}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Latz}},
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Van~Beijeren}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Dorfman}},
+  \bibinfo{journal}{Physical review letters} \textbf{\bibinfo{volume}{78}},
+  \bibinfo{pages}{207} (\bibinfo{year}{1997}).
+
+\bibitem[{\citenamefont{Dellago and Posch}(1997)}]{dellago1997lyapunov}
+\bibinfo{author}{\bibfnamefont{C.}~\bibnamefont{Dellago}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Posch}},
+  \bibinfo{journal}{Physical review letters} \textbf{\bibinfo{volume}{78}},
+  \bibinfo{pages}{211} (\bibinfo{year}{1997}).
+
+\bibitem[{\citenamefont{Van~Beijeren et~al.}(1998)\citenamefont{Van~Beijeren,
+  Latz, and Dorfman}}]{van1998chaotic}
+\bibinfo{author}{\bibfnamefont{H.}~\bibnamefont{Van~Beijeren}},
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Latz}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Dorfman}},
+  \bibinfo{journal}{Physical Review E} \textbf{\bibinfo{volume}{57}},
+  \bibinfo{pages}{4077} (\bibinfo{year}{1998}).
+
+\bibitem[{\citenamefont{Kraemer and Sanders}(2013)}]{kraemer2013embedding}
+\bibinfo{author}{\bibfnamefont{A.~S.} \bibnamefont{Kraemer}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{D.~P.} \bibnamefont{Sanders}},
+  \bibinfo{journal}{Physical review letters} \textbf{\bibinfo{volume}{111}},
+  \bibinfo{pages}{125501} (\bibinfo{year}{2013}).
+
+\bibitem[{\citenamefont{Wennberg}(2012)}]{wennberg2012free}
+\bibinfo{author}{\bibfnamefont{B.}~\bibnamefont{Wennberg}},
+  \bibinfo{journal}{Journal of Statistical Physics}
+  \textbf{\bibinfo{volume}{147}}, \bibinfo{pages}{981} (\bibinfo{year}{2012}).
+
+\bibitem[{\citenamefont{Bleher}(1992)}]{bleher1992statistical}
+\bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Bleher}},
+  \bibinfo{journal}{Journal of statistical physics}
+  \textbf{\bibinfo{volume}{66}}, \bibinfo{pages}{315} (\bibinfo{year}{1992}).
+
+\bibitem[{\citenamefont{Chernov}(1994)}]{chernov1994statistical}
+\bibinfo{author}{\bibfnamefont{N.}~\bibnamefont{Chernov}},
+  \bibinfo{journal}{Journal of Statistical Physics}
+  \textbf{\bibinfo{volume}{74}}, \bibinfo{pages}{11} (\bibinfo{year}{1994}).
+
+\bibitem[{\citenamefont{Gilbert et~al.}(2011)\citenamefont{Gilbert, Nguyen, and
+  Sanders}}]{gilbert2011diffusive}
+\bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Gilbert}},
+  \bibinfo{author}{\bibfnamefont{H.~C.} \bibnamefont{Nguyen}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{D.~P.}
+  \bibnamefont{Sanders}}, \bibinfo{journal}{Journal of Physics A: Mathematical
+  and Theoretical} \textbf{\bibinfo{volume}{44}}, \bibinfo{pages}{065001}
+  (\bibinfo{year}{2011}).
+
+\bibitem[{\citenamefont{Gilbert and Sanders}(2009)}]{gilbert2009persistence}
+\bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Gilbert}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{D.~P.} \bibnamefont{Sanders}},
+  \bibinfo{journal}{Physical Review E} \textbf{\bibinfo{volume}{80}},
+  \bibinfo{pages}{041121} (\bibinfo{year}{2009}).
+
+\bibitem[{\citenamefont{Marklof and
+  Str{\"o}mbergsson}(2011)}]{marklof2011periodic}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Marklof}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Str{\"o}mbergsson}},
+  \bibinfo{journal}{Geometric and Functional Analysis}
+  \textbf{\bibinfo{volume}{21}}, \bibinfo{pages}{560} (\bibinfo{year}{2011}).
+
+\bibitem[{\citenamefont{Nandori et~al.}(2012)\citenamefont{Nandori, Szasz, and
+  Varju}}]{nandori2012tail}
+\bibinfo{author}{\bibfnamefont{P.}~\bibnamefont{Nandori}},
+  \bibinfo{author}{\bibfnamefont{D.}~\bibnamefont{Szasz}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Varju}},
+  \bibinfo{journal}{arXiv preprint arXiv:1210.2231}  (\bibinfo{year}{2012}).
+
+\bibitem[{\citenamefont{Dettmann}(2012)}]{dettmann2012new}
+\bibinfo{author}{\bibfnamefont{C.~P.} \bibnamefont{Dettmann}},
+  \bibinfo{journal}{Journal of Statistical Physics}
+  \textbf{\bibinfo{volume}{146}}, \bibinfo{pages}{181} (\bibinfo{year}{2012}).
+
+\bibitem[{\citenamefont{Caglioti and Golse}(2003)}]{caglioti2003distribution}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Caglioti}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}},
+  \bibinfo{journal}{Communications in mathematical physics}
+  \textbf{\bibinfo{volume}{236}}, \bibinfo{pages}{199} (\bibinfo{year}{2003}).
+
+\bibitem[{\citenamefont{Golse}(2012)}]{golse2012recent}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}}, in
+  \emph{\bibinfo{booktitle}{Nonlinear Partial Differential Equations}}
+  (\bibinfo{publisher}{Springer}, \bibinfo{year}{2012}), pp.
+  \bibinfo{pages}{39--99}.
+
+\bibitem[{\citenamefont{Boca and Zaharescu}(2007)}]{boca2007distribution}
+\bibinfo{author}{\bibfnamefont{F.~P.} \bibnamefont{Boca}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Zaharescu}},
+  \bibinfo{journal}{Communications in mathematical physics}
+  \textbf{\bibinfo{volume}{269}}, \bibinfo{pages}{425} (\bibinfo{year}{2007}).
+
+\bibitem[{\citenamefont{Golse}(2006)}]{golse2006periodic}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}}, in
+  \emph{\bibinfo{booktitle}{Proceedings of the International Congress of
+  Mathematicians (Madrid, 2006)}} (\bibinfo{year}{2006}),
+  vol.~\bibinfo{volume}{3}, pp. \bibinfo{pages}{183--20}.
+
+\bibitem[{\citenamefont{Caglioti and Golse}(2008)}]{caglioti2008boltzmann}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Caglioti}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}},
+  \bibinfo{journal}{Comptes Rendus Mathematique}
+  \textbf{\bibinfo{volume}{346}}, \bibinfo{pages}{477} (\bibinfo{year}{2008}).
+
+\bibitem[{\citenamefont{Caglioti and Golse}(2010)}]{caglioti2010boltzmann}
+\bibinfo{author}{\bibfnamefont{E.}~\bibnamefont{Caglioti}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}},
+  \bibinfo{journal}{Journal of Statistical Physics}
+  \textbf{\bibinfo{volume}{141}}, \bibinfo{pages}{264} (\bibinfo{year}{2010}).
+
+\bibitem[{\citenamefont{Golse and Wennberg}(2000)}]{golse2000distribution}
+\bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{B.}~\bibnamefont{Wennberg}},
+  \bibinfo{journal}{ESAIM: Mathematical Modelling and Numerical Analysis}
+  \textbf{\bibinfo{volume}{34}}, \bibinfo{pages}{1151} (\bibinfo{year}{2000}).
+
+\bibitem[{\citenamefont{Marklof and
+  Str{\"o}mbergsson}(2008)}]{marklof2008kinetic}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Marklof}} \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Str{\"o}mbergsson}},
+  \bibinfo{journal}{Nonlinearity} \textbf{\bibinfo{volume}{21}},
+  \bibinfo{pages}{1413} (\bibinfo{year}{2008}).
+
+\bibitem[{\citenamefont{Bourgain et~al.}(1998)\citenamefont{Bourgain, Golse,
+  and Wennberg}}]{bourgain1998distribution}
+\bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Bourgain}},
+  \bibinfo{author}{\bibfnamefont{F.}~\bibnamefont{Golse}}, \bibnamefont{and}
+  \bibinfo{author}{\bibfnamefont{B.}~\bibnamefont{Wennberg}},
+  \bibinfo{journal}{Communications in mathematical physics}
+  \textbf{\bibinfo{volume}{190}}, \bibinfo{pages}{491} (\bibinfo{year}{1998}).
+
+\bibitem[{\citenamefont{Sanders}(2008)}]{sanders2008normal}
+\bibinfo{author}{\bibfnamefont{D.~P.} \bibnamefont{Sanders}},
+  \bibinfo{journal}{Physical Review E} \textbf{\bibinfo{volume}{78}},
+  \bibinfo{pages}{060101} (\bibinfo{year}{2008}).
+
+\bibitem[{\citenamefont{Sanders}(2005)}]{sanders2005fine}
+\bibinfo{author}{\bibfnamefont{D.~P.} \bibnamefont{Sanders}},
+  \bibinfo{journal}{Physical Review E} \textbf{\bibinfo{volume}{71}},
+  \bibinfo{pages}{016220} (\bibinfo{year}{2005}).
+
+\bibitem[{\citenamefont{Zacherl et~al.}(1986)\citenamefont{Zacherl, Geisel,
+  Nierwetberg, and Radons}}]{zacherl1986power}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Zacherl}},
+  \bibinfo{author}{\bibfnamefont{T.}~\bibnamefont{Geisel}},
+  \bibinfo{author}{\bibfnamefont{J.}~\bibnamefont{Nierwetberg}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{G.}~\bibnamefont{Radons}},
+  \bibinfo{journal}{Physics Letters A} \textbf{\bibinfo{volume}{114}},
+  \bibinfo{pages}{317} (\bibinfo{year}{1986}).
+
+\bibitem[{\citenamefont{Niven et~al.}(2008)\citenamefont{Niven, Zuckerman, and
+  Montgomery}}]{niven2008introduction}
+\bibinfo{author}{\bibfnamefont{I.}~\bibnamefont{Niven}},
+  \bibinfo{author}{\bibfnamefont{H.~S.} \bibnamefont{Zuckerman}},
+  \bibnamefont{and} \bibinfo{author}{\bibfnamefont{H.~L.}
+  \bibnamefont{Montgomery}}, \emph{\bibinfo{title}{An introduction to the
+  theory of numbers}} (\bibinfo{publisher}{John Wiley \& Sons},
+  \bibinfo{year}{2008}).
+
+\bibitem[{\citenamefont{Nogueira}(1995)}]{nogueira1995three}
+\bibinfo{author}{\bibfnamefont{A.}~\bibnamefont{Nogueira}},
+  \bibinfo{journal}{Israel Journal of Mathematics}
+  \textbf{\bibinfo{volume}{90}}, \bibinfo{pages}{373} (\bibinfo{year}{1995}).
+
+\end{thebibliography}

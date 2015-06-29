@@ -87,7 +87,7 @@ where $\{ \cdot \}$ denotes the fractional part, and $q_n=q_{n-1}+1$, where $q_1
 \begin{figure}
 \centering
 \includegraphics [width=240pt]{fig01.pdf}
-\caption{Relation between the intersection of a line and a circle with integer coordinates and the intersection of the line with the x-axis}
+\caption{Relation between the intersection of a line and a circle with integer coordinates and the intersection of the line $x = q$. }
 \label{fig:circle}
 \end{figure}
 
@@ -130,7 +130,7 @@ Thus, we have reduced the solution from two linear equations and one quadratic t
 Now, a better algorithm should find a way to find the set of $p_i$, such that inequality \ref{eq:iteration} keeps and there is not any integer $q$ such that there exists an $i$ such that $p_i<q<p_{i-1}$ and
 $|\{ \alpha  q_i \}+b -1|<|\{ \alpha  q \}+b -1| <|\{ \alpha  q_{i-1} \}+b -1|$. 
 
-In order to do this, we can use the continued fraction algorithm to obtain solutions to the inequality $|\alpha q - p|\leq \epsilon$. This algorithm already gives the succession of $(q_n,p_n)$ such that $|\alpha q_i - p_i|<|\alpha q_{i-1} - p_{i-1}|$ if $q_{i-1} <q_i$. So, if we turn our inequality \ref{eq:prima} into this other inequality, we will find our algorithm just by using the continued fraction algorithm.
+In order to do this, we can use the continued fraction algorithm to obtain solutions to the inequality $|\alpha q - p|\leq \epsilon$. This algorithm already gives a succession of $(q_n,p_n)$ such that $|\alpha q_i - p_i|<|\alpha q_{i-1} - p_{i-1}|$ if $q_{i-1} <q_i$. So, if we turn our inequality \ref{eq:prima} into this other inequality, we will find our algorithm just by using the continued fraction algorithm.
 Indeed, using equation \ref{eq:hn} and the inequality \ref{eq:prima}, we obtain $|\{ \alpha  q_1 \} -1|< \begin{cases} 2b &\mbox{if } b < 1/2 \\  2(1-b) & \mbox{if } b > 1/2 \end{cases} $, which is almost the continued fraction inequality, except that $p$ is always equal to $\lfloor \alpha q  \rfloor+1$. 
 
 \begin{equation}
@@ -246,28 +246,9 @@ else if (v is in quadrant IV) then
 endif
 \end{verbatim}
 
-Using the technique mentioned above, which, for the initial position $(0, b), 0 < b < 1$ and for any initial velocity returns the integer coordinates of the obstacle of the first collision, we make the function \texttt{Lorentz(x, v, r)} that calculates the first collision of the particle in the 2D plane. In order to calculate the exact collision point and the velocity after the collision, we need to use the classical collision function \texttt{collide}.
+Using the technique mentioned above, which, for the initial position $(0, b), 0 < b < 1$ and for any initial velocity returns the integer coordinates of the obstacle of the first collision, we make the function \texttt{Lorentz(x, v, r)} that calculates the first collision of the particle in the 2D plane. In order to calculate the exact collision point and the velocity after the collision, we need to use the classical collision functions \texttt{collision} and \texttt{velo\_col}.
 
-\begin{verbatim}
-function collide(q, p, x, y, vx, vy, r)
-    r0 = [x, y]
-    v0 = [vx, vy]
-    v0 /= norm(v0)
-    R = [q, p]
-    crossz(x, y) = x[1]*y[2] - x[2]*y[1]
-    discr = norm(v0)^2*r^2 - (crossz(v0, r0-R))^2
-    t1 = (-dot(v0, r0-R) - sqrt(discr))/norm(v0)^2
-    N0 = r0 + v0*t1 - R
-    N = N0/norm(N0)
-    v1 = v0 - 2*dot(v0, N)*N
-    r1 = r0 + v0*t1
-    return r1[1], r1[2], v1[1], v1[2]
-end
-\end{verbatim}
-
-At every step of the trajectory, we create an array of the integer corners of the square where the particle is, and then, given the line of motion of the particle, we determine whether it will leave the square or experience a collision in the same square; also, we make sure that the corner which is behind the particle (i.e., is at the direction opposite to the motion) does not get counted as a collision. There is a small problem at the first step: in order for the function to work, we put a dummy point into the array of the coordinates of the collisions (usually a point very far from the origin), and at the first step it may be counted as a collision, so we delete it. If the particle exits the square, we determine the side through which it exits: if it is one of the two vertical sides, we simply apply the efficient algorithm and obtain the place of the next collision; if it is one of the two horizontal sides, we rotate the coordinates, apply the efficient algorithm, and rotate the coordinates back, thus obtaining the place of the next collision. If the particle does not exit the square, we use the classical collision function to determine the new point of collision and the new velocity.
-
-The functions \texttt{frac}, \texttt{efficient\_algorithm} and \texttt{first\_collision}, which comprise the implementation of the efficient algorithm, and the function \texttt{collisions}, which calculates the trajectory, can be found in the \texttt{EfficientLorentz} module (LINK TO MODULE).
+The functions \texttt{frac}, \texttt{eff} and \texttt{Lorentz}, which comprise the implementation of the efficient algorithm, and the classical functions to calculate the trajectory, can be found in the module (LINK TO MODULE).
 
 
 \section{3D case}
@@ -294,51 +275,8 @@ Also, as Figure \ref{fig:collision} suggests, the difference $\pp$ between the r
 \end{equation}
 which is very small for small obstacles (for example, obstacles of radius $r=0.01$ will produce a probability $\pp \sim 0.999995$ that the algorithm will find the next collision). 
 
-It turns out that out of the three planes to calculate the collision by projections, only two are enough. We estimate the time to the first collision in the xy-plane and the yz-plane, using the corresponding projections of the coordinates and velocities on these planes. If the times are not approximately equal (we take the maximum absolute difference to be 0.4, given the normalized velocity), it means that there is no real collision in 3D space. We select the lesser of the two times and advance to the next 2D obstacle determined by the efficient algorithm, and so on until the times are approximately equal. At that moment we obtain the 3D "candidate" for the valid collision. Then, using the classical 3D function \texttt{collide3d}, which calculates the coordinates of the collision, given the initial conditions of the particle, the coordinates of the center of the obstacle and its radius (and which outputs \texttt{false} when there is no collision) we determine if the collision is real. If it is, we record the obstacle, the coordinates of the collision and the new velocity and go to the next step. If it is not, we keep going with the same velocity and repeat this step.
+The 3D algorithm is realized by the above mentioned technique based on applying the 2D algorithm function \texttt{Lorentz} in the projections on the 3 planes and is in the function \texttt{Lorentz3D} in the module (LINK TO MODULE).
 
-\begin{figure}
-\centering
-\includegraphics [width=240pt]{fig03.png}
-\caption{Times to the integer coordinates of the circle in the case of the velocity angle close to $\pi$/4.}
-\label{fig:fig03}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics [width=240pt]{fig04.png}
-\caption{Times to the integer coordinates of the circle in the case of the velocity angle close to $\pi$/2.}
-\label{fig:fig04}
-\end{figure}
-
-The function measuring the approximate time to the circle (2D) may be expressed in a straightforward formula dividing the distance between the two points and the speed, which involves square roots. To make it slightly more efficient, we developed another method which avoids square roots and employs only the four arithmetic operations and elementary functions such as sign, absolute value and maximum/minimum. The idea is as follows. We measure the times of the displacement to the integer x- and y-coordinates (or the corresponding two coordinates on the plane; here we denote them $x$ and $y$ without the loss of generality) of the center of the circle. From Figure \ref{fig:fig03} we can see that if the angle is about $\pi$/4 (or a multiple of it, not including 0), then these times are not very different from each other.
-
-However, when the angle is close to $\pi$/2 (or a multiple of it, including 0), then the two times can be significantly different (see Figure \ref{fig:fig04}). Moreover, whether the greater or the lesser time of the two is closer to the approximate time to the circle depends on whether the velocity vector has a greater angle $\varphi$ = arctg($v_y/v_x$) than the vector from the initial point to the center of the circle. If it is greater (as in Figure \ref{fig:fig03} or \ref{fig:fig04}), then, in the case presented in Figure \ref{fig:fig04} the minimum of the two times corresponds to the approximate value. If the velocity angle is less than that of the vector to the center (for example, if the trajectory in Figure \ref{fig:fig04} had the same slope but lesser y-intercept, i.e., would go "under" the circle), then the maximum of the two times would occur near the circle and thus correspond to the approximate time. The condition on the two angles can be found measuring the sign of the z-component of the cross product of the velocity and the vector to the center. 
-
-The first condition (whether the angle is close to a multiple of $\pi$/2 and which one – basically, in which of the 8 octants of the plane separated by the multiples of $\pi$/4 the angle is) can be found simply by evaluating the sign of the product $v_x v_y$ and whose absolute value (of $v_x$ and $v_y$) is greater. By employing the two conditions, the approximate time is found as the maximum or the minimum of the two times, depending on the conditions.
-
-The function \texttt{time\_to\_circle} is given in the function \texttt{collisions3d\_time}, which implements the technique described here and is presented in the \texttt{EfficientLorentz} module (LINK TO MODULE). We also use the classical functions \texttt{collide3d}, to calculate the place where the particle will collide if the obstacle has center $x_2$ and radius $r$, and the particle has velocity $v$ and initial position $x_1$, and \texttt{v\_new}, to calculate the velocity after the collision at the point $x_1$, where $x_2$ is the center of the sphere.
-
-\begin{verbatim}
-function collide3d(x1, x2, v, r) 
-    b = dot(x1 - x2, v)/norm(v)^2 
-    c = norm(x1 - x2)^2 - r^2 
-    if b^2 - c < 0
-        return false 
-    end 
-    t = -b - sqrt(b^2 - c) 
-    x = v*t + x1 
-    return x 
-end 
-
-function v_new(x1, x2, v) 
-    n = x1 - x2 
-    n /= norm(n) 
-    vn = dot(n, v)*n 
-    v -= 2vn 
-    v /= norm(v) 
-    return v 
-end
-\end{verbatim}
 
 \section{Numerical measurements}
 
@@ -360,6 +298,21 @@ We measured the average time of the execution of the function finding the first 
 
 Figures \ref{fig:fig05} and \ref{fig:fig06} show the results of this simulation for 2D and 3D versions. As we can see, the new algorithm is significantly more efficient for $r < 0.01$.
 
+Similarly, we calculated the execution time per cell depending on the radius of the obstacle, for both 2D and 3D efficient algorithm comparing it to classical. Classical algorithms use periodic boundary conditions, so the execution time per cell is about the same, regardless of the radius of the obstacle. For small radii, we can observe the efficiency of this algorithm.
+
+\begin{figure}
+\centering
+\includegraphics [width=260pt]{exectimepercell-2D.pdf}
+\caption{Average execution time per cell of finding the first collision in 2D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms.}
+\label{fig:exectimepercell2D}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics [width=260pt]{exectimepercell-3D.pdf}
+\caption{Average execution time per cell of finding the first collision in 3D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms.}
+\label{fig:exectimepercell3D}
+\end{figure}
 
 
 
@@ -387,20 +340,20 @@ A continued fraction is an expression obtained through an iterative process of r
 \end{equation*}
 
 This expression produces a succession of integer numbers $\lfloor \alpha \rfloor=a_0,\lfloor \alpha_1 \rfloor=a_1, \lfloor \alpha_2 \rfloor=a_2, \dots$. 
-Then, we define inductively two successions of integers $\{ h_n\}$ and $\{ k_n\}$ in the following way:
+Then, we define inductively two successions of integers $\{ p_n\}$ and $\{ q_n\}$ in the following way:
 
 \begin{alignat}{2}
-h_{-2} = 0,  &\quad h_{-1} = 1,  &\quad h_i=a_i h_{i-1}+h_{i-2}
+p_{-2} = 0,  &\quad p_{-1} = 1,  &\quad p_i=a_i p_{i-1}+p_{i-2}
 \label{eq:sucesion1}
 \\ 
-k_{-2} = 1,  &\quad k_{-1} = 0,  &\quad k_i=a_i k_{i-1}+k_{i-2} 
+q_{-2} = 1,  &\quad q_{-1} = 0,  &\quad q_i=a_i q_{i-1}+q_{i-2} 
 \label{eq:sucesion2}
 \end{alignat}
 
 With this succession we can approximate any irrational number $\alpha$ using the Hurwitz theorem:
-\emph{For every irrational number $\alpha$ all the relative prime integers $h_n$, $k_n$ of the successions defined in equations \ref{eq:sucesion1} and \ref{eq:sucesion2} keep the formula:}
+\emph{For every irrational number $\alpha$ all the relative prime integers $p_n$, $q_n$ of the successions defined in equations \ref{eq:sucesion1} and \ref{eq:sucesion2} keep the formula:}
 \begin{equation}
-|\alpha- \frac{h_n}{k_n}|\leq  \frac{1}{{k_n}^2} 
+|\alpha- \frac{p_n}{q_n}|\leq  \frac{1}{{q_n}^2} 
 \end{equation}
 
 

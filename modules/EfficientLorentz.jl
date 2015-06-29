@@ -632,16 +632,16 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	coords = Vector{BigFloat}[]
 	speeds = Vector{BigFloat}[]
 
-	approx_equal(x, y) = abs(x - y) < 0.4 # Was 0.3; setting it to 0.2 leads to errors for r = 0.1; set 0.4 for new time_to_circle to work
+	approx_equal(x, y) = abs(x - y) < 0.7 # Was 0.3; setting it to 0.2 leads to errors for r = 0.1; set 0.4 for new time_to_circle to work
 
 	steps = 1
 
 	first(x, v, d1, d2, r, prec) = collisions(x[d1], x[d2], v[d1], v[d2], r, 1, prec)[1][1]
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/norm([v[d1], v[d2]])
-	#time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt(((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(v[d1]^2 + v[d2]^2))
+	time_to_circle(x, v, coord1, coord2, d1, d2) = sqrt(((coord1 - x[d1])^2 + (coord2 - x[d2])^2)/(v[d1]^2 + v[d2]^2))
 	#time_to_circle(x, v, coord1, coord2, d1, d2) = min(abs((coord1 - x[d1])/v[d1]), abs((coord2 - x[d2])/v[d2]))
 
-	# Supposedly efficient function time_to_circle without sqrt
+	#= Supposedly efficient function time_to_circle without sqrt
 	function time_to_circle(x, v, coord1, coord2, d1, d2)
 	    p = (coord1 - x[d1])*v[d2] - (coord2 - x[d2])*v[d1]
 	    tx = abs((coord1 - x[d1])/v[d1])
@@ -660,6 +660,7 @@ function collisions3d_time(x, v, r, maxsteps, prec::Integer=64)
 	        end
 	    end
 	end
+	=#
 
     while steps <= maxsteps
 
