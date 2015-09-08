@@ -1,67 +1,69 @@
 \relax 
-\ifx\hyper@anchor\@undefined
-\global \let \oldcontentsline\contentsline
-\gdef \contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
-\global \let \oldnewlabel\newlabel
-\gdef \newlabel#1#2{\newlabelxx{#1}#2}
-\gdef \newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
-\AtEndDocument{\let \contentsline\oldcontentsline
-\let \newlabel\oldnewlabel}
-\else
-\global \let \hyper@last\relax 
-\fi
-
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{cvitanovic1992investigation}
 \citation{latz1997lyapunov,dellago1997lyapunov,van1998chaotic}
 \citation{kraemer2013embedding,wennberg2012free}
 \citation{bunimovich1981statistical,bleher1992statistical,chernov1994statistical,gilbert2011diffusive}
 \citation{bunimovich1981statistical}
-\citation{gilbert2009persistence,marklof2011periodic,nandori2012tail,dettmann2012new}
 \citation{caglioti2003distribution,golse2012recent,boca2007distribution,golse2006periodic,caglioti2008boltzmann,caglioti2010boltzmann,golse2000distribution,marklof2008kinetic,bourgain1998distribution}
+\citation{gilbert2009persistence,marklof2011periodic,nandori2014tail,dettmann2012new}
 \citation{sanders2005fine,sanders2008normal}
-\citation{zacherl1986power}
 \citation{caglioti2003distribution,golse2012recent,boca2007distribution,golse2006periodic,caglioti2008boltzmann,caglioti2010boltzmann,golse2000distribution,bleher1992statistical,chernov1994statistical}
-\citation{golse2012recent}
+\citation{zacherl1986power}
+\citation{caglioti2003distribution,golse2012recent}
 \citation{marklof2014power}
-\newlabel{FirstPage}{{}{1}{\relax }{section*.1}{}}
-\@writefile{toc}{\contentsline {title}{Efficient algorithm for the periodic Lorentz gas in 2 and 3 dimensions}{1}{section*.2}}
+\newlabel{FirstPage}{{}{1}{}{section*.1}{}}
+\@writefile{toc}{\contentsline {title}{Efficient algorithms for the periodic Lorentz gas in two and three dimensions}{1}{section*.2}}
 \@writefile{toc}{\contentsline {abstract}{Abstract}{1}{section*.1}}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section*.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {II}2D algorithm}{1}{section*.4}}
-\newlabel{algorithm}{{II}{1}{\relax }{section*.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Continued fractions}{1}{section*.4}}
+\newlabel{algorithm}{{II}{1}{}{section*.4}{}}
+\newlabel{eq:classical}{{1}{1}{}{equation.2.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Collision with a disc}{1}{section*.5}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Relation between the intersection of a line and a circle with integer coordinates and the intersection of the line $x = q$. }}{2}{figure.1}}
-\newlabel{fig:circle}{{1}{2}{Relation between the intersection of a line and a circle with integer coordinates and the intersection of the line $x = q$. \relax }{figure.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A}Collision with disc}{2}{section*.5}}
-\newlabel{eq:master}{{2}{2}{\relax }{equation.2.2}{}}
-\newlabel{eq:1}{{3}{2}{\relax }{equation.2.3}{}}
-\newlabel{eq:iteration}{{4}{2}{\relax }{equation.2.4}{}}
-\newlabel{eq:prima}{{5}{2}{\relax }{equation.2.5}{}}
-\newlabel{eq:hn}{{6}{2}{\relax }{equation.2.6}{}}
+\newlabel{fig:circle}{{1}{2}{Relation between the intersection of a line and a circle with integer coordinates and the intersection of the line $x = q$}{figure.1}{}}
+\newlabel{eq:master}{{2}{2}{}{equation.2.2}{}}
+\newlabel{eq:1}{{3}{2}{}{equation.2.3}{}}
+\newlabel{eq:iteration}{{4}{2}{}{equation.2.4}{}}
+\newlabel{eq:prima}{{5}{2}{}{equation.2.5}{}}
+\newlabel{eq:hn}{{6}{2}{}{equation.2.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {B}The Diophantine inequality: $|\alpha p - q|\leq \epsilon $}{2}{section*.6}}
-\newlabel{eq:master2}{{7}{2}{\relax }{equation.2.7}{}}
-\citation{julialang}
-\@writefile{toc}{\contentsline {subsection}{\numberline {C}Explicit algorithm}{3}{section*.7}}
-\@writefile{toc}{\contentsline {section}{\numberline {III}3D algorithm}{3}{section*.8}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces A sphere of radius $r$ embedded into the intersection of 3 orthogonal cylinders of the same radius. The volume where there is no sphere, but there is the intersection of the 3 cylinders, is the place where trajectories of particles can be considered as having collisions, when really they do not use the proposed algorithm in the 3D case.}}{4}{figure.2}}
-\newlabel{fig:collision}{{2}{4}{A sphere of radius $r$ embedded into the intersection of 3 orthogonal cylinders of the same radius. The volume where there is no sphere, but there is the intersection of the 3 cylinders, is the place where trajectories of particles can be considered as having collisions, when really they do not use the proposed algorithm in the 3D case}{figure.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Average execution time of finding the first collision in 2D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms.}}{4}{figure.3}}
-\newlabel{fig:fig05}{{3}{4}{Average execution time of finding the first collision in 2D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms}{figure.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Average execution time of finding the first collision in 3D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms.}}{4}{figure.4}}
-\newlabel{fig:fig06}{{4}{4}{Average execution time of finding the first collision in 3D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms}{figure.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Numerical measurements}{4}{section*.9}}
+\newlabel{eq:master2}{{7}{2}{}{equation.2.7}{}}
+\citation{tricylinder1974}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Complete 2D algorithm}{3}{section*.7}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}3D algorithm}{3}{section*.8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces A sphere of radius $r$ embedded into the intersection of three orthogonal cylinders of the same radius. The volume inside the intersection but outside the sphere is the region where the 3D algorithm predicts false collisions.}}{3}{figure.2}}
+\newlabel{fig:collision}{{2}{3}{A sphere of radius $r$ embedded into the intersection of three orthogonal cylinders of the same radius. The volume inside the intersection but outside the sphere is the region where the 3D algorithm predicts false collisions}{figure.2}{}}
 \citation{marklof2014power}
+\citation{marklof2014power}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Mean execution time to find the first collision in 2D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms. The straight lines show power-law fits. }}{4}{figure.3}}
+\newlabel{fig:time_2D}{{3}{4}{Mean execution time to find the first collision in 2D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms. The straight lines show power-law fits}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Mean execution time to find the first collision in 3D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms. The straight lines show power-law fits.}}{4}{figure.4}}
+\newlabel{fig:time_3D}{{4}{4}{Mean execution time to find the first collision in 3D Lorentz gas, for the classical (dotted curve) and efficient (solid curve) algorithms. The straight lines show power-law fits}{figure.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Numerical measurements}{4}{section*.9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Mean execution time per cell of finding the first collision in 2D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms.}}{4}{figure.5}}
+\newlabel{fig:exectimepercell2D}{{5}{4}{Mean execution time per cell of finding the first collision in 2D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Mean execution time per cell of finding the first collision in 3D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms.}}{4}{figure.6}}
+\newlabel{fig:exectimepercell3D}{{6}{4}{Mean execution time per cell of finding the first collision in 3D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms}{figure.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Free flight distribution}{4}{section*.10}}
 \citation{niven2008introduction}
 \citation{nogueira1995three}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Mean execution time per cell of finding the first collision in 2D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms.}}{5}{figure.5}}
-\newlabel{fig:exectimepercell2D}{{5}{5}{Mean execution time per cell of finding the first collision in 2D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Mean execution time per cell of finding the first collision in 3D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms.}}{5}{figure.6}}
-\newlabel{fig:exectimepercell3D}{{6}{5}{Mean execution time per cell of finding the first collision in 3D Lorentz gas, for the classical (dashed curve) and efficient (solid curve) algorithms}{figure.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A}Free flight distribution}{5}{section*.10}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Probability density of free flight length for 2 and 3 incommensurable, overlapping periodic Lorentz gases. The results for a single lattice are shown for comparison.}}{5}{figure.7}}
-\newlabel{fig:mark}{{7}{5}{Probability density of free flight length for 2 and 3 incommensurable, overlapping periodic Lorentz gases. The results for a single lattice are shown for comparison}{figure.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {V}Conclusions}{5}{section*.11}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Acknowledgments}{5}{section*.12}}
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Appendix: Approximation of an irrational number by a rational}{5}{section*.13}}
 \bibdata{efficient_Lorentz_paper5Notes,Bib-alg}
 \bibcite{cvitanovic1992investigation}{{1}{1992}{{Cvitanovi{\'c} et~al.}}{{Cvitanovi{\'c}, Gaspard, and Schreiber}}}
 \bibcite{latz1997lyapunov}{{2}{1997}{{Latz et~al.}}{{Latz, Van~Beijeren, and Dorfman}}}
@@ -73,29 +75,35 @@
 \bibcite{bleher1992statistical}{{8}{1992}{{Bleher}}{{}}}
 \bibcite{chernov1994statistical}{{9}{1994}{{Chernov}}{{}}}
 \bibcite{gilbert2011diffusive}{{10}{2011}{{Gilbert et~al.}}{{Gilbert, Nguyen, and Sanders}}}
-\bibcite{gilbert2009persistence}{{11}{2009}{{Gilbert and Sanders}}{{}}}
-\bibcite{marklof2011periodic}{{12}{2011}{{Marklof and Str{\"o}mbergsson}}{{}}}
-\bibcite{nandori2012tail}{{13}{2012}{{Nandori et~al.}}{{Nandori, Szasz, and Varju}}}
-\bibcite{dettmann2012new}{{14}{2012}{{Dettmann}}{{}}}
-\bibcite{caglioti2003distribution}{{15}{2003}{{Caglioti and Golse}}{{}}}
-\bibcite{golse2012recent}{{16}{2012}{{Golse}}{{}}}
-\bibcite{boca2007distribution}{{17}{2007}{{Boca and Zaharescu}}{{}}}
-\bibcite{golse2006periodic}{{18}{2006}{{Golse}}{{}}}
-\bibcite{caglioti2008boltzmann}{{19}{2008}{{Caglioti and Golse}}{{}}}
-\bibcite{caglioti2010boltzmann}{{20}{2010}{{Caglioti and Golse}}{{}}}
-\bibcite{golse2000distribution}{{21}{2000}{{Golse and Wennberg}}{{}}}
-\bibcite{marklof2008kinetic}{{22}{2008}{{Marklof and Str{\"o}mbergsson}}{{}}}
-\bibcite{bourgain1998distribution}{{23}{1998}{{Bourgain et~al.}}{{Bourgain, Golse, and Wennberg}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Probability density of the first free flight for two and three incommensurable, overlapping periodic Lorentz gases with angles $\pi /5$ and $\pi /7$; a total of $10^{8}$ initial conditions was used. The results for a single lattice are shown for comparison. The dashed lines and labels show the theoretical asymptotics.}}{5}{figure.7}}
+\newlabel{fig:free-flights}{{7}{5}{Probability density of the first free flight for two and three incommensurable, overlapping periodic Lorentz gases with angles $\pi /5$ and $\pi /7$; a total of $10^{8}$ initial conditions was used. The results for a single lattice are shown for comparison. The dashed lines and labels show the theoretical asymptotics}{figure.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusions}{5}{section*.11}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Acknowledgements}{5}{section*.12}}
+\@writefile{toc}{\appendix }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Approximation of an irrational number by a rational}{5}{section*.13}}
+\newlabel{eq:sucesion1}{{A1}{5}{}{equation.A.1}{}}
+\newlabel{eq:sucesion2}{{A2}{5}{}{equation.A.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}References}{5}{section*.14}}
+\bibcite{caglioti2003distribution}{{11}{2003}{{Caglioti and Golse}}{{}}}
+\bibcite{golse2012recent}{{12}{2012}{{Golse}}{{}}}
+\bibcite{boca2007distribution}{{13}{2007}{{Boca and Zaharescu}}{{}}}
+\bibcite{golse2006periodic}{{14}{2006}{{Golse}}{{}}}
+\bibcite{caglioti2008boltzmann}{{15}{2008}{{Caglioti and Golse}}{{}}}
+\bibcite{caglioti2010boltzmann}{{16}{2010}{{Caglioti and Golse}}{{}}}
+\bibcite{golse2000distribution}{{17}{2000}{{Golse and Wennberg}}{{}}}
+\bibcite{marklof2008kinetic}{{18}{2008}{{Marklof and Str{\"o}mbergsson}}{{}}}
+\bibcite{bourgain1998distribution}{{19}{1998}{{Bourgain et~al.}}{{Bourgain, Golse, and Wennberg}}}
+\bibcite{gilbert2009persistence}{{20}{2009}{{Gilbert and Sanders}}{{}}}
+\bibcite{marklof2011periodic}{{21}{2011}{{Marklof and Str{\"o}mbergsson}}{{}}}
+\bibcite{nandori2014tail}{{22}{2014}{{N{\'a}ndori et~al.}}{{N{\'a}ndori, Sz{\'a}sz, and Varj{\'u}}}}
+\bibcite{dettmann2012new}{{23}{2012}{{Dettmann}}{{}}}
 \bibcite{sanders2005fine}{{24}{2005}{{Sanders}}{{}}}
 \bibcite{sanders2008normal}{{25}{2008}{{Sanders}}{{}}}
 \bibcite{zacherl1986power}{{26}{1986}{{Zacherl et~al.}}{{Zacherl, Geisel, Nierwetberg, and Radons}}}
 \bibcite{marklof2014power}{{27}{2014}{{Marklof and Str{\"o}mbergsson}}{{}}}
-\bibcite{julialang}{{28}{2014}{{Bezanson et~al.}}{{Bezanson, Edelman, Karpinski, and Shah}}}
+\bibcite{tricylinder1974}{{28}{1974}{{Moore}}{{}}}
 \bibcite{niven2008introduction}{{29}{2008}{{Niven et~al.}}{{Niven, Zuckerman, and Montgomery}}}
 \bibcite{nogueira1995three}{{30}{1995}{{Nogueira}}{{}}}
 \bibstyle{apsrev}
-\newlabel{eq:sucesion1}{{9}{6}{\relax }{equation.7.9}{}}
-\newlabel{eq:sucesion2}{{10}{6}{\relax }{equation.7.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {}References}{6}{section*.14}}
-\newlabel{LastBibItem}{{30}{6}{\relax }{section*.14}{}}
-\newlabel{LastPage}{{}{6}}
+\newlabel{LastBibItem}{{30}{6}{}{section*.14}{}}
+\newlabel{LastPage}{{}{6}{}{}{}}

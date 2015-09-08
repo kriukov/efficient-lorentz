@@ -10,7 +10,7 @@ function crossing(x, v, n, m)
 	
 	# Minimum positive times to nearest crossing - concise formulas p. 48 - 49
 	array_times = BigFloat[]
-	k = v[2]/v[1]	
+	#k = v[2]/v[1]	
 	for i = 1:2
 		for j = 1:2
 			push!(array_times, ((-1)^j*0.5 - x[i])/v[i])

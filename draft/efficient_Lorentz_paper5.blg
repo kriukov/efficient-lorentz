@@ -5,48 +5,46 @@ The style file: apsrev.bst
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: efficient_Lorentz_paper5Notes.bib
 Database file #2: Bib-alg.bib
-Warning--I didn't find a database entry for "Geisel_private"
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 You've used 30 entries,
             3411 wiz_defined-function locations,
-            1339 strings with 14891 characters,
-and the built_in function-call counts, 18912 in all, are:
-= -- 1147
-> -- 508
-< -- 86
-+ -- 388
-- -- 124
-* -- 2449
-:= -- 2117
+            1338 strings with 14617 characters,
+and the built_in function-call counts, 18812 in all, are:
+= -- 1152
+> -- 482
+< -- 84
++ -- 364
+- -- 118
+* -- 2424
+:= -- 2112
 add.period$ -- 30
 call.type$ -- 30
 change.case$ -- 120
 chr.to.int$ -- 30
 cite$ -- 30
-duplicate$ -- 1746
-empty$ -- 1661
-format.name$ -- 344
-if$ -- 3624
+duplicate$ -- 1731
+empty$ -- 1663
+format.name$ -- 330
+if$ -- 3621
 int.to.chr$ -- 1
 int.to.str$ -- 31
 missing$ -- 273
 newline$ -- 105
 num.names$ -- 90
-pop$ -- 478
+pop$ -- 465
 preamble$ -- 1
 purify$ -- 120
 quote$ -- 0
 skip$ -- 717
 stack$ -- 0
-substring$ -- 696
-swap$ -- 1318
-text.length$ -- 65
+substring$ -- 728
+swap$ -- 1312
+text.length$ -- 62
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 178
 warning$ -- 0
-while$ -- 91
+while$ -- 93
 width$ -- 0
-write$ -- 314
-(There was 1 warning)
+write$ -- 315
