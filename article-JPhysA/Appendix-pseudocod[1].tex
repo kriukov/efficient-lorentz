@@ -1,0 +1,354 @@
+\documentclass{iopart}
+\usepackage{dcolumn}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{mathptmx}
+\usepackage{subfigure}
+\usepackage[utf8]{inputenc}
+\usepackage{bbold}
+\usepackage{color}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{pifont}
+\usepackage{mathtools}
+\begin{document}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\appendix
+\section{Appendice: Explicit code} 
+
+In this section we present the pseudo code to program efficient algorithm of the 2D periodic Lorentz gas. The Full packet it is made by 8 functions: 
+$Frac(\alpha, \epsilon)$ (see algorithm \ref{alg:frac}), 
+$Eff(m, b, r)$ (see algorithm \ref{alg:Eff}),  
+$Next(\vec{x},\vec{v},r)$ (see algorithm \ref{alg:next}), 
+$Collision(\vec{x_0},\vec{x_c}, \vec{v},r)$ (see algorithm \ref{alg:collision}), 
+$Vel_{col}(\vec{x_0},\vec{x_c},\vec{v})$ (see algorithm \ref{alg:vel}), 
+$Lor(\vec{x},\vec{v},\vec{r})$ (see algorithm \ref{alg:Lor}),
+$Lorentz2D(\vec{x},\vec{v},r)$ (see algorithm \ref{alg:Lorentz2D}), and 
+$LorentzGas(\vec{x},\vec{v},r,steps)$ (see algorithm \ref{alg:LorentzGas}).   
+
+The algorithm \ref{alg:frac} is the continued fraction algorithm that will be used to calculate efficiently the first collision. This function calculates the smallest integers $k_n$ and $h_n$ such that $|\alpha -\frac{k_n}{h_n}|<\epsilon$, for a given $\epsilon$ and $\alpha$ using the continued fraction algorithm. 
+
+\begin{algorithm}
+\caption{Continued fraction algorithm}
+\label{alg:frac}
+\begin{algorithmic}
+\Function{frac} {$\alpha$, $\epsilon$}
+\State   $h_1, h_2 = 1, 0$
+\State   $k_1, k_2 = 0, 1$
+\State   $b = \alpha$
+\While {$|k_1 \alpha - h_1| > \epsilon$}
+\State       $a = \floor*{b}$
+\State       $h_1, h_2 = a h_1 + h_2, h_1$
+\State       $k_1, k_2 = a k_1 + k_2, k_1$
+\State       $b = 1/(b - a)$
+\EndWhile
+
+   return $k_1, h_1$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Using this algorithm it is possible to calculate efficiently the center of the first obstacle with radius $r$ which a particle that has a initial position $(0,b)$ with $0<b<1$, and its trajectory is on a line with slope $0<m<1$ with both components of the velocity of the particle are positive, collides. We call the function to calculate this $Eff(m,b,r)$, and it is shown in the algorithm \ref{alg:Eff}. This is the main function in this paper to optimize the efficiency of the simulations in the periodic Lorentz gases. 
+
+\begin{algorithm}
+\caption{Function Eff}
+\label{alg:Eff}
+\begin{algorithmic}
+\Function {Eff} {m, b, r} 
+\State	$k_n = 0$
+\State  $b_1=b$
+\State  $ \epsilon=r \sqrt{m^2+1}$ 
+\If {$b < \epsilon$ or  $(1 - b) < \epsilon$}
+        \If {$b < 0.5$}
+\State			$q, p = Frac(m, 2b)$
+		\Else
+\State			$q, p = Frac(m, 2(1 - b))$
+		\EndIf
+\State		$b = mod(m q + b, 1)$
+\State		$kn = q+1$
+\EndIf  
+\While {$b > \epsilon$ and $1 - b > \epsilon$}
+\If {$b < 0.5$}
+\State			$(q, p) = Frac(m, 2 b)$
+        \Else 
+\State			$(q, p) = Frac(m, 2 (1- b))$
+\EndIf
+\State		$b = mod(m q + b, 1)$
+\State		$k_n = q+1$
+\If{$|b-b_1|< 0 $}
+\State            return false
+\EndIf
+\EndWhile
+\State	$q = k_n$
+\State    $p = \floor*{m q+b_1+0.5}$
+\State    return $(q, p)$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Using rotations, it is possible to use the algorithm \ref{alg:Eff} for any velocity, however, it is still needed to move the particle up to the next position of the form $(n,b)$, where $n$ is a integer number, and b is a real number. Because of the periodic boundary conditions, this is equivalent to a position of the form $(0,b)$
+with $0<b<1$.  The function $Next(\vec{x},\vec{v},r)$ (algorithm \ref{alg:next}) calculates the first of the
+next possibilities: The intersection of a particle at a initial position $\vec{x}$ and velocity $\vec{v}$, with a line of the form $(n,b)$, where $n$ is an integer and $b$ is a variable, or the center of the obstacle with
+which the particle collides. This center can only be one of the followings: $\floor*{\vec{x}+\vec{0.5}}$, or $\floor*{\vec{x}+\vec{0.5}}+\hat{e}_1$, or $\floor*{\vec{x}+\vec{0.5}}+\hat{e}_2$, or $\floor*{\vec{x}+\vec{0.5}}+\hat{e}_1+\hat{e}_2$. Here $\vec{0.5}=(0.5,0.5)$. The returned variable $test$ is 1 if there is not collision and is equal to 0 if there is a collision. 
+
+\begin{algorithm}
+\caption{Function Next}
+\label{alg:next}
+\begin{algorithmic}
+\Function {next} {$\vec{x}$,$\vec{v}$,$r$} 
+\State    $\hat{e}_1=(1,0)$
+\State    $\hat{e}_2=(0,1)$ 
+\State    $\vec{n}=\floor*{x}$
+\State    $\vec{x}'=\vec{x}-\vec{n}$
+\State    $t=(1-x'_1)/v_1$
+\State    $t_2=-x'_/v_1$
+\State    $\vec{x}''=\vec{x}'+\vec{v} t$
+\State    $\vec{x}'''=\vec{x}'+\vec{v} t_2$
+\State    $b_1=x''_2$
+\State    $b_2=x'''_2$
+\State    $\epsilon=r/v_1$
+\State    $test=0$
+\If{ $(\vec{x}'-\hat{e}_1)\cdot\vec{v}<0$}
+    \If{$|b_1|<\epsilon$}
+    \State  return  $\hat{e}_1+\vec{n},0$ 
+    \EndIf
+\EndIf
+  
+    \If{ $\vec{x'}-\hat{e}_2)\cdot\vec{v}<0$}
+        \If{$|1-b_2|<\epsilon$}
+\State       return $\hat{e}_2+\vec{n}, 0$            
+        \EndIf        
+    \EndIf
+    
+    \If{ $\vec{x'}-\hat{e}_2-\hat{e}_1)\cdot\vec{v}<0$}
+        \If{$|1-b_1|<\epsilon$}
+\State        return $\hat{e}_1+\hat{e}_2+\vec{n}, 0$
+        \EndIf
+    \EndIf
+    
+    \If{$\vec{x'}-\hat{e}_2-\hat{e}_2-\hat{e}_1)\cdot\vec{v}<0$}
+        \If{$|2-b_1|<\epsilon$}
+\State        return $\hat{e}_1+\hat{e}_2+\hat{e}_2+\vec{n}, 0$
+        \EndIf
+    \EndIf
+\State    $test=1$
+\State    return $\vec{x}''+\vec{n}, test$
+
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+
+
+In the Lorentz gas, the simulations are on hard disk, so, the we need calculate the exact position of the collision, which is the intersection between a straight line and a circle, as well as the final velocity after the collision, which is simply a reflection. The function $Collision(\vec{x_0}, \vec{x_c}, \vec{v},r)$
+calculates the intersection between a disc of radius $r$, at a position $x_c$, with a line with parametric equation $\vec{x}=\vec{x_0}+\vec{v}t $. 
+\begin{algorithm}
+\caption{Intersection between a line with parametric equation $\vec{x}=\vec{x_0}+\vec{v}t $ an a circle of radius $r$, center $x_c$}
+\label{alg:collision}
+\begin{algorithmic}
+\Function{collision}{$\vec{x_0}$, $\vec{x_c}$, $\vec{v}$,$r$}
+\State $b=\frac {(\vec{x_0}-\vec{x_c}) \cdot \vec{v}}{ \vec{v}^2}$
+\State $c=\frac {(\vec{x_0}-\vec{x_c})^2 -r^2}{ \vec{v}^2}$
+\If{ $b^2-c < 0$} 
+\State return ''false''
+\EndIf
+\State $t=-b-\sqrt{b^2-c}$
+\State $\vec{x}=\vec{v} t+\vec{x_0}$
+\State return $\vec{x}$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The function $vel_{col}$, calculates the velocity after a collision, if the collision takes place at position $\vec{x_0}$, with an obstacle with centre $\vec{x_c}$, and initial velocity $\vec{v}$.
+\begin{algorithm}
+\caption{Resulting velocity after a collision at the point $x_0$ of particle with initial velocity $\vec{v}$ and a disk with center $x_c$ }
+\label{alg:vel}
+\begin{algorithmic}
+\Function{$vel_{col}$}{$\vec{x_0}$,$\vec{x_c}$,$\vec{v}$}
+\State    $\hat{n}=\frac{\vec{x_0}-\vec{x_c}}{||\vec{x_0}-\vec{x_c}||}$
+\State    $\vec{v_n}=(\hat{n}\cdot \vec{v}) \hat{n}$
+\State    $\vec{v}=\vec{v}-2 \vec{v_n}$
+\State    $\vec{v}=\frac{\vec{v}}{||\vec{v}||}$
+\State    return $\vec{v}$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\begin{algorithm}
+\caption{ Integrate the functions $Eff$ and $Next$ in one function that calculates the first collision in a Lorentz gas, if the initial velocity $\vec{v}$ is positive and $v_1>v_2$}
+\label{alg:Lor}
+\begin{algorithmic}
+\Function{Lor}{$\vec{x}$,$\vec{v}$,$\vec{r}$}
+\State    $\vec{x'},test=Next(\vec{x},\vec{v},r)$
+\If{$test=0$}
+\State        return $\vec{x'}$
+\EndIf
+\State    $m=v_2/v_1$
+\State    $b=x'_1$
+\State    $b=b-\floor*{b}$
+\State    $\vec{d}=[0, int(b)]$
+\State    $\vec{c}=Eff(m,b,r)$
+\If{c=false}
+\State        return false
+\EndIf
+\State    $x''=\floor*{x'+0.5}-\vec{d}+\vec{c}$
+\State    return $x''$
+
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Given the initial position $\vec{x}$, the initial velocity $\vec{v}$ and the radius $r$ of the obstacles, this algorithm finds the first collision in a periodic Lorentz gas.}
+\label{alg:Lorentz2D}
+\begin{algorithmic} 
+\Function{Lorentz2D}{$\vec{x}$,$\vec{v}$,$r$}
+
+
+$ROT = 
+ \begin{pmatrix}
+  0 & 1  \\
+  -1 & 0  \\
+ \end{pmatrix} $
+\State  \#Rotational matrix $\pi/2$ radians
+
+$REF = 
+ \begin{pmatrix}
+  0 & 1  \\
+  1 & 0  \\
+ \end{pmatrix} $
+\State    \#Reflection matrix, change $(x,y) \rightarrow (y,x)$
+\State    $v'=v$
+\State    $x'=x$
+\State    $m_1=v_2/v_1$
+\If{$||\floor*(\vec{x}+\vec{0.5})-\vec{x}||<r$}   
+\State \#if a particle begin inside an obstacle, then the first collision is considered with the same obstacle. 
+\State        return $\floor*{\vec{x}}$
+\EndIf
+
+    \If{$m_1>0$ and $v_2>0$}  
+\State \# if the velocity is in the quadrant I 
+        \If{$m_1<1$}
+\State            $x'=Lor(x',v',r)$
+            \If{$x'=false$}
+\State               return false
+            \EndIf
+        \ElsIf {$m_1>1$}  
+\State            $x'=REF x'$
+\State            $v'=REF v'$
+\State            $x'=Lor(x',v',r)$
+            \If{$x'=false$}
+\State                return false
+            \EndIf
+\State            $x'=REF x'$
+\State            $v'=REF v' $           
+        \EndIf
+\State        return $x'$
+    \ElsIf {$m_1>0$ and $v_2<0$} 
+\State \#if the velocity is in the quadrant III
+\State        $x'=ROT^2 x'$
+\State        $v'=ROT^2 v'$
+        \If{$m_1<1$}
+\State            $x'=Lor(x',v',r)$  
+            \If{$x'=false$}
+\State                return false
+            \EndIf
+        \ElsIf{$m_1>1$}
+\State            $x'=REF x'$
+\State            $v'=REF v'$
+\State            $x'=Lor(x',v',r)$
+            \If{$x'=false$}
+\State                return false
+            \EndIf
+\State            $x'=REF x'$
+\State            $v'=REF v' $  
+        \EndIf
+\State        $x'=ROT^2 x'$
+\State        $v'=ROT^2 v'$
+\State        return $x'$
+
+\algstore{myalg}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}                     
+\begin{algorithmic}                  
+\algrestore{myalg}
+
+    \ElsIf {$m_1<0$ and $v_2>0$} 
+\State  \#if the velocity is in the quadrant II
+\State        $x'=ROT x'$
+\State        $v'=ROT v'$
+        \If{$m_1<-1$}
+\State            $x'=Lor(x',v',r) $
+            \If{$x'=false$}
+\State                return false
+            \EndIf            
+        \ElsIf{$m_1>-1$}
+\State            $x'=REF x'$
+\State            $v'=REF v'$
+\State           $x'=Lor(x',v',r)$
+            \If{$x'=false$}
+\State                return false
+            \EndIf            
+\State            $x'=REF x'$  
+\State            $v'=REF v'$ 
+        \EndIf     
+\State        $x'=ROT^3  x'$
+\State        $v'=ROT^3  v'$
+\State        return $x'$
+    \ElsIf {$m_1<0$ and $v_2<0$}
+    
+\State  \#if the velocity is in the quadrant IV
+\State        $x'=ROT^3  x'$
+\State        $v'=ROT^3  v'$
+        \If{$m_1<-1$}
+\State            $x'=Lor(x',v',r)$  
+            \If{$x'=false$}
+\State                return false
+            \EndIf                
+        \ElsIf {$m_1>-1$}
+\State            $x'=REF x'$
+\State            $v'=REF v'$
+\State            $x'=Lor(x',v',r)$
+            \If{$x'=false$}
+\State                return false
+            \EndIf          
+\State            $x'=REF x'$
+\State            $v'=REF v' $
+        \EndIf   
+\State        $x'=ROT x'$
+\State        $v'=ROT^3  v'$
+\State        return $x'$
+    \EndIf
+
+
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Lorentz gas model: given initial conditions  $\vec{x}$ and $\vec{v}$, the radius of the obstacles, and the number of collisions $steps$, this function calculates the final position and velocity}
+\label{LorentzGas}
+\begin{algorithmic}
+\Function {LorentzGas}{$\vec{x}$,$\vec{v}$,$r$,$steps$}
+    \For {$i=1:steps$}
+\State        $\vec{c}=Lorentz(\vec{x},\vec{v},r)$ 
+\State        $\vec{x}, t=Collision(\vec{x},\vec{c},r,v)$
+\State        $\vec{v}=vel_{col}(\vec{x},\vec{c},\vec{v})$
+    \EndFor
+\State    return $\vec{x}$, $\vec{v}$
+\EndFunction 
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
+
+
+
+

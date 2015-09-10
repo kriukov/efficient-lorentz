@@ -1,0 +1,70 @@
+The 3D version of the efficient algorithm calculates the 2D collisions in each of the 3 projected planes xy, yz, xz. We project the velocity onto the planes xy, xz and yz and normalize them in each plane. Then we record the position of the particle in the three planes and, using the 2D efficient algorithm, calculate the first collision in each plane. Then we calculate the times needed to reach the obstacle in each plane and take the maximum value out of the three. We check if the three first collisions in the plane correspond to the same obstacle in 3D space. If not, we move further with the same velocity during the maximum time (to the furthest obstacle) and continue. Finally, if the three 2D collisions correspond to the same obstacle, we use the classical function "collision" to check if the collision is real.
+
+
+function Lorentz3D2(x, v, r)
+    if norm(int(x)-x) < r 
+        error("The initial position cannot be inside an obstacle")
+    end
+
+    Initialize zero 2D vectors: x1, x2, x3
+    xr = false
+
+    while xr == false
+        v_xy = [v[1], v[2]]
+        v_xz = [v[1], v[3]]
+        v_yz = [v[2], v[3]]
+
+        vn_xy = v_xy/norm(v_xy)
+        vn_xz = v_xz/norm(v_xz)
+        vn_yz = v_yz/norm(v_yz)
+
+        x1[1] = 1
+        x1[2] = 2
+        x2[1] = 3
+        x2[2] = 4
+        x3[1] = 5
+        x3[2] = 6
+
+        while x1[1] != x2[1] || x1[2] != x3[1] || x2[2] != x3[2]
+            x_xy = [x[1], x[2]]
+            x_xz = [x[1], x[3]]
+            x_yz = [x[2], x[3]]
+
+            x1 = Lorentz2(x_xy, vn_xy, r)
+            if x1 == false
+                return false
+            end if
+
+            x2 = Lorentz2(x_xz, vn_xz, r)
+            if x2 == false
+                return false
+            end if
+
+            x3 = Lorentz2(x_yz, vn_yz, r)
+            if x3 == false
+                return false
+            end if
+
+            t1 = (norm(x1 - x_xy) - r)/norm(v_xy)
+            t2 = (norm(x2 - x_xz) - r)/norm(v_xz)
+            t3 = (norm(x3 - x_yz) - r)/norm(v_yz)
+
+            tmax = max(t1, t2, t3)
+            
+            if tmax < 0
+                tmax = 0.1*r
+            end if
+            x += v*(tmax-0.1*r)
+        end while
+        
+        xr, tt = collision(x, int(x), r, v) 
+        
+        if tt < 0
+            xr = false
+        end if
+        
+        x += v*(1-2*r)
+    end while
+    return xr
+end function
+	    
